@@ -1,0 +1,19 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+# Godot project files to ignore
+.godot/
+.import/
+.export/
+.glb-importer/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Build output or exports
+export/
+*.exe
+*.pck
+*.zip
+

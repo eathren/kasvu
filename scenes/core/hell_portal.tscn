@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://cjccke53xingf"]
+
+[ext_resource type="Script" uid="uid://bbegsv44exx1o" path="res://scripts/core/hell_portal.gd" id="1_o3jo1"]
+[ext_resource type="PackedScene" uid="uid://dfsbjqd8ea5ga" path="res://scenes/gameplay/enemies/imp.tscn" id="2_ribtj"]
+[ext_resource type="Texture2D" uid="uid://q2rn4i5gtojj" path="res://assets/art/hell_portal.png" id="2_wheyl"]
+
+[node name="HellPortal" type="Node2D"]
+script = ExtResource("1_o3jo1")
+imp_scene = ExtResource("2_ribtj")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_wheyl")
+
+[node name="SpawnTimer" type="Timer" parent="."]

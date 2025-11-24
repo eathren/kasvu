@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://dfsbjqd8ea5ga"]
+
+[ext_resource type="Texture2D" uid="uid://b0ijhwuafskac" path="res://assets/art/enemies/imp.png" id="1_6nf23"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_45r1c"]
+radius = 5.0
+
+[node name="Imp" type="CharacterBody2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_45r1c")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("1_6nf23")

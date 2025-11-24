@@ -1,0 +1,23 @@
+[gd_scene load_steps=6 format=3 uid="uid://bmqm3l87s438b"]
+
+[ext_resource type="Script" uid="uid://bmdlp1vswwd8j" path="res://scripts/core/level.gd" id="1_78cma"]
+[ext_resource type="Texture2D" uid="uid://cbykw6r7yyyou" path="res://assets/art/tilesets/ground_tileset.png" id="1_jv1nx"]
+[ext_resource type="Script" uid="uid://d110gepqts4o3" path="res://scripts/core/ground.gd" id="3_w4kyo"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gtdem"]
+texture = ExtResource("1_jv1nx")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_78cma"]
+sources/0 = SubResource("TileSetAtlasSource_gtdem")
+
+[node name="Level" type="Node2D"]
+script = ExtResource("1_78cma")
+
+[node name="Ground" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_78cma")
+script = ExtResource("3_w4kyo")
+
+[node name="Walls" type="Node2D" parent="."]
