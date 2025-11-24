@@ -30,7 +30,7 @@ func _ready() -> void:
 	set_physics_process(false)
 	
 	# Set collision mask to detect walls (layer 4)
-	collision_mask = 16  # Bit 4 = 2^4 = 16
+	collision_mask = 8  # Bit 3 = 2^3 = 8 (layer 4 = Wall)
 	
 	# Initialize laser damage from GameState
 	laser_damage_per_second = GameState.get_laser_dps()
