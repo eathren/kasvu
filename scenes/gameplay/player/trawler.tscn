@@ -29,6 +29,7 @@ script = ExtResource("4_sriag")
 target = NodePath("..")
 
 [node name="WallCollider" type="Area2D" parent="."]
+collision_mask = 8
 script = ExtResource("5_lvan5")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WallCollider"]

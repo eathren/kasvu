@@ -16,7 +16,13 @@ var left_x: int
 var right_x: int
 var top_y: int
 
+# Track damage per cell
+var cell_damage: Dictionary = {}
+
 func _ready() -> void:
+	add_to_group("wall")
+	
+	
 	await get_tree().process_frame
 
 	trawler = get_tree().get_first_node_in_group("trawler") as Node2D
@@ -25,6 +31,28 @@ func _ready() -> void:
 		return
 
 	_generate_initial()
+
+func damage_cell(cell: Vector2i, damage: float) -> void:
+	# Only damage wall tiles, not empty cells
+	if get_cell_source_id(cell) == -1:
+		return
+	
+	var atlas_coord := get_cell_atlas_coords(cell)
+	if atlas_coord != wall_atlas_coord:
+		return  # Don't damage ground tiles
+	
+	# Track damage for this cell
+	var cell_key := "%d,%d" % [cell.x, cell.y]
+	if not cell_damage.has(cell_key):
+		cell_damage[cell_key] = 0.0
+	
+	cell_damage[cell_key] += damage
+	
+	# Remove cell if it takes enough damage (100 HP default)
+	var max_health := 100.0
+	if cell_damage[cell_key] >= max_health:
+		erase_cell(cell)
+		cell_damage.erase(cell_key)
 
 func _generate_initial() -> void:
 	if trawler == null:

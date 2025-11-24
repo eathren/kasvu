@@ -18,6 +18,7 @@ texture = ExtResource("3_w4kyo")
 texture = ExtResource("1_jv1nx")
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+0:0/0/physics_layer_0/polygon_1/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 0:1/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_nml2g"]
