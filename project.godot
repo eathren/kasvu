@@ -75,6 +75,7 @@ move_left={
 2d_physics/layer_7="PlayerHitbox"
 2d_physics/layer_8="Turret"
 2d_physics/layer_9="Pickup"
+2d_physics/layer_10="InternalWall"
 
 [rendering]
 

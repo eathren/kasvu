@@ -32,9 +32,13 @@ func _on_spawn_timeout() -> void:
 	if imp_scene == null:
 		return
 
-	var imp := imp_scene.instantiate()
-	imp.global_position = global_position
-	get_tree().current_scene.add_child(imp)
+	# Use SpawnManager to spawn at valid locations (wall edges or open areas)
+	var imp := SpawnManager.spawn(imp_scene)
+	if imp == null:
+		# Fallback: spawn at portal position if SpawnManager fails
+		imp = imp_scene.instantiate()
+		imp.global_position = global_position
+		get_tree().current_scene.add_child(imp)
 
 	alive_from_this += 1
 	imp.tree_exited.connect(func() -> void:

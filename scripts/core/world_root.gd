@@ -5,8 +5,16 @@ extends Node2D
 var depth: float = 0.0
 var dig_multiplier: float = 1.0
 
-func _physics_process(delta: float) -> void:
-	var scroll_speed := base_scroll_speed * dig_multiplier
-	var dy := -scroll_speed * delta
-	position.y += dy
-	depth += scroll_speed * delta
+@onready var wall: TileMapLayer = $Wall
+
+func _ready() -> void:
+	# Wait for wall to be initialized
+	await get_tree().process_frame
+	
+	# Setup SpawnManager with ground and wall tilemaps
+	# Note: The wall TileMapLayer contains both walls and ground tiles
+	# We'll use it for both since they're in the same TileMapLayer
+	if wall != null:
+		SpawnManager.setup(wall, wall)
+	else:
+		push_error("WorldRoot: Wall TileMapLayer not found")

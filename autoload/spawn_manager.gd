@@ -28,10 +28,23 @@ func _rebuild_spawn_cells() -> void:
 		return
 
 	# Build a fast lookup of wall cells
-	for cell in wall_tilemap.get_used_cells():
-		_wall_cells[cell] = true
+	# If ground and wall are the same TileMapLayer, check atlas coordinates
+	var is_same_tilemap := (ground_tilemap == wall_tilemap)
+	
+	if is_same_tilemap:
+		# Same tilemap - distinguish by atlas coordinates
+		# Wall tiles are typically at (0, 0), ground at (0, 1) based on wall.gd
+		for cell in wall_tilemap.get_used_cells():
+			var atlas_coord := wall_tilemap.get_cell_atlas_coords(cell)
+			# Assume wall_atlas_coord is (0, 0) - adjust if needed
+			if atlas_coord == Vector2i(0, 0):
+				_wall_cells[cell] = true
+	else:
+		# Different tilemaps - all cells in wall_tilemap are walls
+		for cell in wall_tilemap.get_used_cells():
+			_wall_cells[cell] = true
 
-	# Get all ground cells
+	# Get all ground cells (cells that exist but aren't walls)
 	var ground_cells := {}
 	for cell in ground_tilemap.get_used_cells():
 		if not _wall_cells.has(cell):
