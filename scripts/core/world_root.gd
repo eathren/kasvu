@@ -5,7 +5,7 @@ extends Node2D
 var depth: float = 0.0
 var dig_multiplier: float = 1.0
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	var scroll_speed := base_scroll_speed * dig_multiplier
 	var dy := -scroll_speed * delta
 	position.y += dy

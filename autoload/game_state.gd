@@ -3,7 +3,7 @@ extends Node
 @export var base_scroll_speed: float = 40.0
 @export var base_laser_dps: float = 20.0
 @export var base_enemy_speed: float = 60.0
-@export var base_trawler_speed: float = 80.0
+@export var base_trawler_speed: float = 30.0
 
 # how many tiles wide we mine in front of the ship
 @export var base_mine_width_tiles: int = 8
