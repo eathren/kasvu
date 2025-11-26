@@ -1,19 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://c1fqem14ng62h"]
+[gd_scene load_steps=2 format=3 uid="uid://c1fqem14ng62h"]
 
 [ext_resource type="Script" uid="uid://7jwugi1ypiul" path="res://scripts/gameplay/main.gd" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://bq8x7k2m3n4p6" path="res://scenes/ui/loading_screen.tscn" id="2_loading"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_script")
-
-[node name="UI" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="LoadingScreen" parent="UI" instance=ExtResource("2_loading")]
 
 [node name="CurrentLevel" type="Node" parent="."]

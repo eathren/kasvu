@@ -46,64 +46,57 @@ func start_level(level_num: int = 1, trawler_pos: Vector2 = Vector2.ZERO) -> voi
 	level_generated.emit()
 
 ## Generate the vertical shaft level
-func _generate_level() -> void:
+func generate_level_async() -> void:
 	if wall_tilemap == null:
 		push_error("LevelManager: Cannot generate level - no wall tilemap")
 		return
-	
-	# Convert pixel clearing to tiles (assuming 16x16 tiles)
+
 	var tile_size: float = 16.0
 	var clearing_width_tiles: int = int(ceil(starter_clearing_width_px / tile_size))
 	var clearing_height_tiles: int = int(ceil(starter_clearing_height_px / tile_size))
-	
-	# Get trawler position in tilemap coordinates
+
 	var trawler_local := wall_tilemap.to_local(trawler_start_position)
 	var trawler_cell := wall_tilemap.local_to_map(trawler_local)
-	
-	# Calculate shaft boundaries
+
 	var left_x: int = trawler_cell.x - shaft_width_tiles
 	var right_x: int = trawler_cell.x + shaft_width_tiles
 	var top_y: int = trawler_cell.y - shaft_height_tiles
-	var bottom_y: int = trawler_cell.y + clearing_height_tiles  # Extend below for starter clearing
-	
-	# Get wall generation parameters from wall script
-	# Access exported properties directly from the TileMapLayer script
-	var tile_source_id: int = 5  # Default from wall.gd
-	var wall_atlas_coord: Vector2i = Vector2i(1, 1)  # Default from wall.gd
-	
-	# Try to get exported values from wall script instance
+	var bottom_y: int = trawler_cell.y + clearing_height_tiles
+
+	var tile_source_id: int = 5
+	var wall_atlas_coord: Vector2i = Vector2i(1, 1)
+
 	if "tile_source_id" in wall_tilemap:
 		tile_source_id = wall_tilemap.get("tile_source_id")
 	if "wall_atlas_coord" in wall_tilemap:
 		wall_atlas_coord = wall_tilemap.get("wall_atlas_coord")
-	
-	# Calculate clearing boundaries (centered on trawler)
+
 	var clearing_left_x: int = trawler_cell.x - (clearing_width_tiles / 2)
 	var clearing_right_x: int = trawler_cell.x + (clearing_width_tiles / 2)
 	var clearing_top_y: int = trawler_cell.y - clearing_height_tiles
 	var clearing_bottom_y: int = trawler_cell.y
-	
-	# Generate walls on left and right sides of shaft (around the clearing)
-	# Left wall (from top to bottom, excluding clearing area)
+
+	var total_rows: int = (bottom_y - top_y) + 1
+	var processed_rows: int = 0
+
 	for y in range(top_y, bottom_y + 1):
-		# Left side of shaft (left of clearing)
-		for x in range(left_x, clearing_left_x):
-			var cell := Vector2i(x, y)
-			wall_tilemap.set_cell(cell, tile_source_id, wall_atlas_coord)
-		
-		# Right side of shaft (right of clearing)
-		for x in range(clearing_right_x + 1, right_x + 1):
-			var cell := Vector2i(x, y)
-			wall_tilemap.set_cell(cell, tile_source_id, wall_atlas_coord)
-	
-	# Generate walls above the clearing (top of shaft - solid wall)
-	for y in range(top_y, clearing_top_y + 1):
 		for x in range(left_x, right_x + 1):
+			var in_clearing := x >= clearing_left_x and x <= clearing_right_x and y >= clearing_top_y and y <= clearing_bottom_y
+			if in_clearing:
+				continue
 			var cell := Vector2i(x, y)
 			wall_tilemap.set_cell(cell, tile_source_id, wall_atlas_coord)
-	
-	print("LevelManager: Generated level %d - Shaft: %d tiles tall, %d tiles wide each side" % [current_level, shaft_height_tiles, shaft_width_tiles])
-	print("LevelManager: Starter clearing: %d x %d tiles at trawler position" % [clearing_width_tiles, clearing_height_tiles])
+
+		processed_rows += 1
+
+		if processed_rows % 32 == 0:
+			var p := float(processed_rows) / float(total_rows)
+			level_progress_updated.emit(p)
+			SceneLoader.update_generation_progress(p)
+			await get_tree().process_frame()
+
+	level_progress_updated.emit(1.0)
+	SceneLoader.update_generation_progress(1.0)
 
 ## Get level progress (0.0 to 1.0)
 func get_level_progress() -> float:

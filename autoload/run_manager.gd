@@ -14,10 +14,10 @@ var level_start_time: float = 0.0
 var level_duration_minutes: float = 10.0
 
 # Level configuration (can be overridden)
-var shaft_height_tiles: int = 3000
-var shaft_width_tiles: int = 400
-var starter_clearing_width_px: float = 500.0
-var starter_clearing_height_px: float = 1000.0
+var shaft_height_tiles: int = 2000  # Reduced from 3000
+var shaft_width_tiles: int = 100  # Reduced from 400 (
+var starter_clearing_width_px: float = 300.0
+var starter_clearing_height_px: float = 500.0
 
 func _ready() -> void:
 	# RunManager is ready
@@ -35,7 +35,7 @@ func start_run(seed: int = 0) -> void:
 	_load_level("res://scenes/levels/level_mine.tscn")
 	run_started.emit(seed)
 
-## Load a level scene
+## Load a level scene with simple fade transition
 func _load_level(path: String) -> void:
 	var main := get_tree().root.get_node_or_null("Main")
 	if main == null:
@@ -47,10 +47,11 @@ func _load_level(path: String) -> void:
 		push_error("RunManager: CurrentLevel node not found under Main")
 		return
 	
-	# Optional: Show loading screen
-	var loading_screen := main.get_node_or_null("UI/LoadingScreen")
-	if loading_screen != null and loading_screen.has_method("show_loading"):
-		loading_screen.show_loading()
+	# Fade in (to black)
+	print("RunManager: Starting fade in")
+	if SceneTransition:
+		await SceneTransition.fade_in()
+	print("RunManager: Fade in complete")
 	
 	# Clear old level
 	for child in level_slot.get_children():
@@ -59,18 +60,28 @@ func _load_level(path: String) -> void:
 	await get_tree().process_frame
 	
 	# Load and instantiate new level
+	print("RunManager: Loading level: ", path)
 	var packed := load(path) as PackedScene
 	if packed == null:
 		push_error("RunManager: Failed to load level scene: " + path)
+		if SceneTransition:
+			await SceneTransition.fade_out()
 		return
 	
+	print("RunManager: Instantiating level")
 	var level := packed.instantiate()
 	level_slot.add_child(level)
 	current_level = level
 	
-	# Hide loading screen
-	if loading_screen != null and loading_screen.has_method("hide_loading"):
-		loading_screen.hide_loading()
+	# Wait for level's _ready() to complete (generation is now synchronous)
+	print("RunManager: Waiting for level _ready()")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	
+	print("RunManager: Level ready, fading out")
+	# Fade out (from black)
+	if SceneTransition:
+		await SceneTransition.fade_out()
 	
 	level_loaded.emit()
 	print("RunManager: Loaded level from ", path)

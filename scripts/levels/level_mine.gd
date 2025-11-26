@@ -6,8 +6,7 @@ extends Node2D
 @onready var wall: TileMapLayer = $WorldRoot/Wall
 @onready var trawler: CharacterBody2D = $Trawler
 @onready var enemy_root: Node2D = $WorldRoot/EnemyRoot
-
-@export var enemy_scene: PackedScene
+@export var enemy_scene: PackedScene = preload("res://scenes/gameplay/enemies/imp.tscn")
 @export var spawns_per_second: float = 5.0
 
 var _spawn_timer: float = 0.0
@@ -16,9 +15,6 @@ func _ready() -> void:
 	if RunManager == null:
 		push_error("Level_Mine: RunManager not found")
 		return
-	
-	# Wait a frame for everything to be ready
-	await get_tree().process_frame
 	
 	# Get trawler position for generation
 	var trawler_pos := trawler.global_position
@@ -87,8 +83,9 @@ func _apply_tiles(level_data: Dictionary) -> void:
 	if "wall_atlas_coord" in wall:
 		wall_atlas_coord = wall.get("wall_atlas_coord")
 	
-	# Apply all wall cells in a tight loop
+	# Apply all wall cells - no yields, just do it all at once
 	var wall_cells: Array = level_data.get("wall_cells", [])
+	
 	for cell in wall_cells:
 		wall.set_cell(cell, tile_source_id, wall_atlas_coord)
 	

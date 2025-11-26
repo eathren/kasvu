@@ -81,4 +81,3 @@ func build_level(seed: int, trawler_start_cell_pos: Vector2i = Vector2i.ZERO) ->
 			"bottom": clearing_bottom_y
 		}
 	}
-

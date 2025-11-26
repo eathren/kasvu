@@ -39,7 +39,6 @@ func _physics_process(delta: float) -> void:
 			velocity = Vector2.UP.rotated(rotation) * current_speed * 4
 
 	move_and_slide()
-	_update_direction_line(delta)
 	# Trawler laser is always on, no input needed
 
 func set_movement_state(new_state: MovementState) -> void:
@@ -55,29 +54,3 @@ func _update_speed_from_state() -> void:
 			current_speed = base_speed
 		MovementState.BURST:
 			current_speed = base_speed * burst_multiplier
-
-func _update_direction_line(delta: float) -> void:
-	var v_len := velocity.length()
-
-	if v_len < 1.0:
-		current_line_length = lerp(current_line_length, 0.0, line_lerp_speed * delta)
-		if current_line_length < 0.5:
-			direction_line.visible = false
-			return
-	else:
-		var speed_ratio = clamp(v_len / max_speed_for_line, 0.0, 1.0)
-		var target_length = max_line_length * speed_ratio
-		current_line_length = lerp(current_line_length, target_length, line_lerp_speed * delta)
-		direction_line.visible = true
-
-	if current_line_length <= 0.0:
-		return
-
-	var dir := velocity.normalized()
-	var start := Vector2.ZERO
-	var end := dir * current_line_length
-
-	var pts := PackedVector2Array()
-	pts.push_back(start)
-	pts.push_back(end)
-	direction_line.points = pts
