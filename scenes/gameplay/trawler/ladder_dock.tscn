@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://dvdwdt6vbluqh" path="res://scenes/gameplay/player/player_ship.tscn" id="2_7atsh"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2irtc"]
+size = Vector2(16, 32)
 
 [node name="LadderDock" type="Node2D"]
 script = ExtResource("2_2irtc")
@@ -14,6 +15,8 @@ ship_scene = ExtResource("2_7atsh")
 texture = ExtResource("1_255q0")
 
 [node name="Area2D" type="Area2D" parent="."]
+collision_layer = 1024
+collision_mask = 4
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]

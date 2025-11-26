@@ -1,8 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://c1fqem14ng62h"]
+[gd_scene load_steps=3 format=3 uid="uid://c1fqem14ng62h"]
 
 [ext_resource type="Script" uid="uid://7jwugi1ypiul" path="res://scripts/gameplay/main.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://interactionprompt" path="res://scenes/ui/interaction_prompt.tscn" id="2_prompt"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_script")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="InteractionPrompt" parent="UI" instance=ExtResource("2_prompt")]
 
 [node name="CurrentLevel" type="Node" parent="."]

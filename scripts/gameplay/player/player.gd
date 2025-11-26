@@ -4,7 +4,13 @@ extends CharacterBody2D
 
 var is_active: bool = true
 
+func _ready() -> void:
+	add_to_group("player")
+
 func _physics_process(delta: float) -> void:
+	if not is_active:
+		return
+	
 	var input_dir := Vector2.ZERO
 
 	# Use your own input actions, not ui_left/right/up/down

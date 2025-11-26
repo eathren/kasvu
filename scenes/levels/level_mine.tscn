@@ -14,12 +14,9 @@ script = ExtResource("3_script")
 [node name="Trawler" parent="." instance=ExtResource("2_trawler")]
 position = Vector2(74, -44)
 
-[node name="Player" parent="." instance=ExtResource("4_vf3cy")]
-position = Vector2(74, -11)
+[node name="Player" parent="Trawler/InteriorRoot" instance=ExtResource("4_vf3cy")]
+position = Vector2(0, 30)
 
-[node name="Camera2D" type="Camera2D" parent="Player" node_paths=PackedStringArray("target")]
-position = Vector2(5, 35)
-position_smoothing_enabled = true
-rotation_smoothing_enabled = true
+[node name="Camera2D" type="Camera2D" parent="Trawler/InteriorRoot/Player" node_paths=PackedStringArray("target")]
 script = ExtResource("5_hiir4")
 target = NodePath("")

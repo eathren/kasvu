@@ -13,13 +13,15 @@ extends Camera2D
 
 func _ready() -> void:
 	# Camera is a child of the player, so it automatically follows
-	# Enable built-in smoothing for smooth camera movement
-	position_smoothing_enabled = true
+	# Disable built-in smoothing since we're a child node
+	position_smoothing_enabled = false
 	rotation_smoothing_enabled = false
-	position_smoothing_speed = 5.0
 	
 	# Make this the active camera
 	make_current()
+	
+	# Center the camera on the player (no offset needed since we're a child)
+	position = Vector2.ZERO
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not enable_zoom_input:
