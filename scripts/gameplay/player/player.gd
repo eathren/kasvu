@@ -2,6 +2,8 @@ extends CharacterBody2D
 
 @export var speed: float = 200.0
 
+var is_active: bool = true
+
 func _physics_process(delta: float) -> void:
 	var input_dir := Vector2.ZERO
 
@@ -16,3 +18,13 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 
 	move_and_slide()
+
+func deactivate() -> void:
+	is_active = false
+	visible = false
+	set_physics_process(false)
+
+func activate() -> void:
+	is_active = true
+	visible = true
+	set_physics_process(true)

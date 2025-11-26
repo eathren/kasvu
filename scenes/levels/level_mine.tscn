@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://bq8x7k2m3n4p5"]
 
 [ext_resource type="PackedScene" uid="uid://bmqm3l87s438b" path="res://scenes/core/world_root.tscn" id="1_world"]
-[ext_resource type="PackedScene" uid="uid://dwjxh6hrypua3" path="res://scenes/gameplay/player/trawler.tscn" id="2_trawler"]
+[ext_resource type="PackedScene" uid="uid://dwjxh6hrypua3" path="res://scenes/gameplay/trawler/trawler.tscn" id="2_trawler"]
 [ext_resource type="Script" uid="uid://cdadf7kds3pqu" path="res://scripts/levels/level_mine.gd" id="3_script"]
 
 [node name="Level_Mine" type="Node2D"]
