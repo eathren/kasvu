@@ -21,6 +21,7 @@ func _ready() -> void:
 	_update_lasers()
 	
 	add_to_group("player")
+	add_to_group("player_ship")
 
 func _physics_process(delta: float) -> void:
 	if not is_active:

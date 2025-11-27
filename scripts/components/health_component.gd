@@ -23,6 +23,10 @@ func apply_damage(amount: int) -> void:
 	if current_health == 0:
 		died.emit()
 
+## Alias for compatibility
+func take_damage(amount: float) -> void:
+	apply_damage(int(amount))
+
 func heal(amount: int) -> void:
 	if amount <= 0 or current_health <= 0:
 		return

@@ -1,10 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://bj53eukoey856"]
+[gd_scene load_steps=7 format=3 uid="uid://bj53eukoey856"]
 
 [ext_resource type="Script" uid="uid://8mng4l478afb" path="res://scripts/gameplay/player/player.gd" id="1_qgw2i"]
 [ext_resource type="Texture2D" uid="uid://btyw6bsgsr1vg" path="res://assets/art/player/player.png" id="2_77456"]
+[ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component.tscn" id="3_health"]
+[ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component.tscn" id="4_speed"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fbmmh"]
 radius = 2.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 32.0
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 4
@@ -17,3 +22,16 @@ texture = ExtResource("2_77456")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_fbmmh")
+
+[node name="HealthComponent" parent="." instance=ExtResource("3_health")]
+max_health = 100
+
+[node name="SpeedComponent" parent="." instance=ExtResource("4_speed")]
+base_speed = 100.0
+
+[node name="PickupArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 256
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea"]
+shape = SubResource("CircleShape2D_pickup")

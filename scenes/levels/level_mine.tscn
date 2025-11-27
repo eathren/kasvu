@@ -18,5 +18,6 @@ position = Vector2(74, -44)
 position = Vector2(0, 30)
 
 [node name="Camera2D" type="Camera2D" parent="Trawler/InteriorRoot/Player" node_paths=PackedStringArray("target")]
+zoom = Vector2(2, 2)
 script = ExtResource("5_hiir4")
 target = NodePath("")

@@ -97,30 +97,50 @@ func _apply_damage(hit_point: Vector2, delta: float) -> void:
 	var tile_size := 16.0
 	var half_width_tiles := int(ceil((width / 2.0) / tile_size))
 	
-	# Erase a horizontal strip of tiles centered on the hit point
-	for x in range(center_cell.x - half_width_tiles, center_cell.x + half_width_tiles + 1):
-		var cell := Vector2i(x, center_cell.y)
-		
-		# Only erase if there's actually a wall tile there
-		if wall.get_cell_source_id(cell) != -1:
-			# Check if it's a wall tile (not ground)
-			var atlas_coord := wall.get_cell_atlas_coords(cell)
-			var source_id := wall.get_cell_source_id(cell)
-			
-			# Get wall tile parameters from wall script
-			var wall_atlas_coord := Vector2i(1, 1)  # Default
-			var wall_source_id := 5  # Default
-			if "wall_atlas_coord" in wall:
-				wall_atlas_coord = wall.get("wall_atlas_coord")
-			if "tile_source_id" in wall:
-				wall_source_id = wall.get("tile_source_id")
-			
-			# Only erase wall tiles, not ground
-			if source_id == wall_source_id and atlas_coord == wall_atlas_coord:
-				wall.erase_cell(cell)
+	# Determine which direction to delete (vertical or horizontal based on laser direction)
+	var is_vertical = abs(direction.y) > abs(direction.x)
+	var depth := 3  # Delete 3 rows/columns deep to penetrate through walls
+	
+	# Get wall tile parameters
+	var wall_atlas_coord := Vector2i(1, 1)  # Default
+	var wall_source_id := 5  # Default
+	if "wall_atlas_coord" in wall:
+		wall_atlas_coord = wall.get("wall_atlas_coord")
+	if "tile_source_id" in wall:
+		wall_source_id = wall.get("tile_source_id")
+	
+	# Erase tiles in a strip, going multiple tiles deep in the laser direction
+	if is_vertical:
+		# Vertical laser: delete horizontally wide, vertically deep
+		var y_dir := 1 if direction.y > 0 else -1
+		for y_offset in range(depth):
+			for x in range(center_cell.x - half_width_tiles, center_cell.x + half_width_tiles + 1):
+				var cell := Vector2i(x, center_cell.y + (y_offset * y_dir))
+				_erase_wall_cell(wall, cell, wall_source_id, wall_atlas_coord)
+	else:
+		# Horizontal laser: delete vertically wide, horizontally deep
+		var x_dir := 1 if direction.x > 0 else -1
+		for x_offset in range(depth):
+			for y in range(center_cell.y - half_width_tiles, center_cell.y + half_width_tiles + 1):
+				var cell := Vector2i(center_cell.x + (x_offset * x_dir), y)
+				_erase_wall_cell(wall, cell, wall_source_id, wall_atlas_coord)
 	
 	# Reset mining timer after deleting
 	_mining_timer = 0.0
+	
+	# Force raycast to update immediately so it can see through deleted walls
+	if raycast:
+		raycast.force_raycast_update()
+
+func _erase_wall_cell(wall: TileMapLayer, cell: Vector2i, wall_source_id: int, wall_atlas_coord: Vector2i) -> void:
+	"""Helper to erase a single wall cell if it's a wall tile"""
+	if wall.get_cell_source_id(cell) != -1:
+		var atlas_coord := wall.get_cell_atlas_coords(cell)
+		var source_id := wall.get_cell_source_id(cell)
+		
+		# Only erase wall tiles, not ground
+		if source_id == wall_source_id and atlas_coord == wall_atlas_coord:
+			wall.erase_cell(cell)
 
 func set_is_casting(cast: bool) -> void:
 	is_casting = cast

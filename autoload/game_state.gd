@@ -1,5 +1,8 @@
 extends Node
 
+signal level_up(new_level: int)
+signal experience_gained(amount: int, total: int)
+
 @export var base_scroll_speed: float = 40.0
 @export var base_laser_dps: float = 20.0
 @export var base_enemy_speed: float = 60.0
@@ -14,6 +17,11 @@ var enemy_speed_multiplier: float = 1.0
 var trawler_speed_multiplier: float = 1.0
 var mine_width_multiplier: float = 1.0
 var spawn_rate_multiplier: float = 200.0
+
+# XP and Level system
+var current_level: int = 1
+var current_xp: int = 0
+var xp_to_next_level: int = 30  # Level 1 requires 30 XP
 
 # Save/load system
 var save_data: Dictionary = {}
@@ -37,6 +45,39 @@ func get_mine_width_tiles() -> int:
 func get_spawn_rate_multiplier() -> float:
 	return spawn_rate_multiplier
 
+## Add experience and handle level ups
+func add_experience(amount: int) -> void:
+	current_xp += amount
+	experience_gained.emit(amount, current_xp)
+	
+	# Check for level up
+	while current_xp >= xp_to_next_level:
+		_level_up()
+
+func _level_up() -> void:
+	current_xp -= xp_to_next_level
+	current_level += 1
+	
+	# Lockstep scaling: Level n requires 30 * n XP
+	xp_to_next_level = 30 * current_level
+	
+	level_up.emit(current_level)
+	print("GameState: Level up! Now level ", current_level, " (need ", xp_to_next_level, " XP for next level)")
+
+func get_level() -> int:
+	return current_level
+
+func get_xp() -> int:
+	return current_xp
+
+func get_xp_to_next_level() -> int:
+	return xp_to_next_level
+
+func get_xp_progress() -> float:
+	if xp_to_next_level <= 0:
+		return 0.0
+	return float(current_xp) / float(xp_to_next_level)
+
 ## Save game state to file
 func save_game() -> bool:
 	if RunManager == null:
@@ -58,7 +99,10 @@ func save_game() -> bool:
 			"enemy_speed_multiplier": enemy_speed_multiplier,
 			"trawler_speed_multiplier": trawler_speed_multiplier,
 			"mine_width_multiplier": mine_width_multiplier,
-			"spawn_rate_multiplier": spawn_rate_multiplier
+			"spawn_rate_multiplier": spawn_rate_multiplier,
+			"current_level": current_level,
+			"current_xp": current_xp,
+			"xp_to_next_level": xp_to_next_level
 		}
 	}
 	
@@ -106,6 +150,9 @@ func load_game() -> bool:
 		trawler_speed_multiplier = gs.get("trawler_speed_multiplier", 1.0)
 		mine_width_multiplier = gs.get("mine_width_multiplier", 1.0)
 		spawn_rate_multiplier = gs.get("spawn_rate_multiplier", 200.0)
+		current_level = gs.get("current_level", 1)
+		current_xp = gs.get("current_xp", 0)
+		xp_to_next_level = gs.get("xp_to_next_level", 30)
 	
 	# Restore level state
 	if RunManager != null and save_data.has("level"):

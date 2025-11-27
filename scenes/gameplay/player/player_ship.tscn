@@ -1,12 +1,17 @@
-[gd_scene load_steps=6 format=3 uid="uid://dvdwdt6vbluqh"]
+[gd_scene load_steps=9 format=3 uid="uid://dvdwdt6vbluqh"]
 
 [ext_resource type="PackedScene" uid="uid://bqe8adk2boluh" path="res://scenes/core/laser.tscn" id="1_laser"]
 [ext_resource type="Script" uid="uid://cdwve1ivpvgr2" path="res://scripts/gameplay/player/player_ship.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://btyw6bsgsr1vg" path="res://assets/art/player/player.png" id="2_1vmog"]
 [ext_resource type="Texture2D" uid="uid://cvffw0qauk3gu" path="res://assets/art/player/player_ship_frame.png" id="3_lpqif"]
+[ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component.tscn" id="4_health"]
+[ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component.tscn" id="5_speed"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ship"]
 radius = 12.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 32.0
 
 [node name="PlayerShip" type="CharacterBody2D"]
 collision_layer = 4
@@ -20,7 +25,7 @@ width = 5.0
 color = Color(0.4, 0.9, 1, 1)
 damage_per_second = 15.0
 direction = Vector2(0, -1)
-mining_delay = 1.0
+mining_delay = 0.0
 
 [node name="LeftLaser" parent="." instance=ExtResource("1_laser")]
 position = Vector2(-6, 0)
@@ -29,7 +34,7 @@ width = 5.0
 color = Color(0.4, 0.9, 1, 1)
 damage_per_second = 15.0
 direction = Vector2(0, -1)
-mining_delay = 1.0
+mining_delay = 0.0
 
 [node name="Sprite2D2" type="Sprite2D" parent="."]
 texture = ExtResource("2_1vmog")
@@ -41,3 +46,16 @@ shape = SubResource("CircleShape2D_ship")
 modulate = Color(0.5, 0.8, 1, 1)
 scale = Vector2(2, 2)
 texture = ExtResource("3_lpqif")
+
+[node name="HealthComponent" parent="." instance=ExtResource("4_health")]
+max_health = 100
+
+[node name="SpeedComponent" parent="." instance=ExtResource("5_speed")]
+base_speed = 150.0
+
+[node name="PickupArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 256
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea"]
+shape = SubResource("CircleShape2D_pickup")

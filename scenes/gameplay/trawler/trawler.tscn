@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dwjxh6hrypua3"]
+[gd_scene load_steps=15 format=3 uid="uid://dwjxh6hrypua3"]
 
 [ext_resource type="Script" uid="uid://b31epxhbt6duc" path="res://scripts/gameplay/trawler/trawler.gd" id="1_byw1e"]
 [ext_resource type="PackedScene" uid="uid://bqe8adk2boluh" path="res://scenes/core/laser.tscn" id="1_laser"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://bo3r6mk8egqyx" path="res://scripts/gameplay/player/wall_collider.gd" id="5_lvan5"]
 [ext_resource type="PackedScene" uid="uid://ccioahkom5fb3" path="res://scenes/gameplay/player/turret.tscn" id="5_t1h18"]
 [ext_resource type="PackedScene" uid="uid://ov1wf3squcqg" path="res://scenes/gameplay/trawler/ladder_dock.tscn" id="8_fg2qg"]
+[ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component.tscn" id="9_health"]
+[ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component.tscn" id="10_speed"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c0e4k"]
 size = Vector2(94, 290)
@@ -48,6 +50,12 @@ collision_layer = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyDetector"]
 shape = SubResource("RectangleShape2D_c0e4k")
+
+[node name="HealthComponent" parent="." instance=ExtResource("9_health")]
+max_health = 500
+
+[node name="SpeedComponent" parent="." instance=ExtResource("10_speed")]
+base_speed = 5.0
 
 [node name="WallCollider" type="Area2D" parent="."]
 collision_layer = 2
@@ -139,8 +147,9 @@ position = Vector2(22, -41)
 position = Vector2(22, -8)
 
 [node name="FrontLaser" parent="." instance=ExtResource("1_laser")]
-visible = false
 position = Vector2(0, -144)
 max_range = 2000.0
 width = 200.0
+color = Color(1, 0.5, 0, 1)
 damage_per_second = 50.0
+direction = Vector2(0, -1)

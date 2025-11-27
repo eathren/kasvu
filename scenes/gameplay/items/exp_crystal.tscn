@@ -4,9 +4,13 @@
 [ext_resource type="Texture2D" uid="uid://g1txoet126t0" path="res://assets/art/player/items/exp_crystal.png" id="2_18vy7"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1uk4i"]
+radius = 8.0
 
 [node name="ExpCrystal" type="Area2D"]
+collision_layer = 256
+collision_mask = 4
 script = ExtResource("1_5sxqp")
+xp_value = 10
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_18vy7")
