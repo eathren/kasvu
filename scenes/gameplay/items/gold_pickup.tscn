@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://dblk3omug65di"]
+
+[ext_resource type="Script" uid="uid://hp00ou34ied3" path="res://scripts/gameplay/items/resource_pickup.gd" id="1_gold"]
+[ext_resource type="Texture2D" uid="uid://bs662lqidmcrn" path="res://assets/art/player/items/gold.png" id="2_bpfym"]
+[ext_resource type="PackedScene" uid="uid://pickup_component_uid" path="res://components/pickup_component.tscn" id="3_pickup"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gold"]
+radius = 6.0
+
+[node name="GoldPickup" type="Area2D"]
+collision_layer = 256
+collision_mask = 4
+script = ExtResource("1_gold")
+amount = 5
+
+[node name="PickupComponent" parent="." instance=ExtResource("3_pickup")]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1, 0.85, 0, 1)
+scale = Vector2(6, 6)
+texture = ExtResource("2_bpfym")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_gold")

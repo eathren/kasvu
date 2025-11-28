@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://cqct0bdbvgcrc"]
+
+[ext_resource type="Script" uid="uid://hp00ou34ied3" path="res://scripts/gameplay/items/resource_pickup.gd" id="1_scrap"]
+[ext_resource type="Texture2D" uid="uid://kurifclj3jy1" path="res://assets/art/player/items/scrap.png" id="2_d74i1"]
+[ext_resource type="PackedScene" uid="uid://pickup_component_uid" path="res://components/pickup_component.tscn" id="3_pickup"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_scrap"]
+radius = 6.0
+
+[node name="ScrapPickup" type="Area2D"]
+collision_layer = 256
+collision_mask = 4
+script = ExtResource("1_scrap")
+resource_type = 1
+
+[node name="PickupComponent" parent="." instance=ExtResource("3_pickup")]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.6, 0.6, 0.6, 1)
+scale = Vector2(6, 6)
+texture = ExtResource("2_d74i1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_scrap")

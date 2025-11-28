@@ -29,6 +29,17 @@ var weapon_levels: Dictionary = {0: 1}  # Weapon type -> level
 var fire_rate_multiplier: float = 1.0
 var weapon_damage_multiplier: float = 1.0
 var ship_speed_multiplier: float = 1.0
+var pickup_range_multiplier: float = 1.0  # Affects how far pickups are attracted from
+
+# Resource tracking
+var kills: int = 0
+var gold: int = 0
+var scrap: int = 0
+
+# Resource signals
+signal kills_changed(new_count: int)
+signal gold_changed(new_count: int)
+signal scrap_changed(new_count: int)
 
 # Save/load system
 var save_data: Dictionary = {}
@@ -124,6 +135,57 @@ func set_ship_speed_multiplier(value: float) -> void:
 	ship_speed_multiplier = value
 	print("GameState: Ship speed multiplier set to ", value)
 
+func get_pickup_range_multiplier() -> float:
+	return pickup_range_multiplier
+
+func set_pickup_range_multiplier(value: float) -> void:
+	pickup_range_multiplier = value
+	print("GameState: Pickup range multiplier set to ", value)
+
+## Resource management
+func add_kill() -> void:
+	kills += 1
+	kills_changed.emit(kills)
+
+func get_kills() -> int:
+	return kills
+
+func add_gold(amount: int) -> void:
+	if amount <= 0:
+		return
+	gold += amount
+	gold_changed.emit(gold)
+	print("GameState: +", amount, " gold (total: ", gold, ")")
+
+func spend_gold(amount: int) -> bool:
+	if amount <= 0 or gold < amount:
+		return false
+	gold -= amount
+	gold_changed.emit(gold)
+	print("GameState: -", amount, " gold (total: ", gold, ")")
+	return true
+
+func get_gold() -> int:
+	return gold
+
+func add_scrap(amount: int) -> void:
+	if amount <= 0:
+		return
+	scrap += amount
+	scrap_changed.emit(scrap)
+	print("GameState: +", amount, " scrap (total: ", scrap, ")")
+
+func spend_scrap(amount: int) -> bool:
+	if amount <= 0 or scrap < amount:
+		return false
+	scrap -= amount
+	scrap_changed.emit(scrap)
+	print("GameState: -", amount, " scrap (total: ", scrap, ")")
+	return true
+
+func get_scrap() -> int:
+	return scrap
+
 ## Save game state to file
 func save_game() -> bool:
 	if RunManager == null:
@@ -153,7 +215,11 @@ func save_game() -> bool:
 			"weapon_levels": weapon_levels,
 			"fire_rate_multiplier": fire_rate_multiplier,
 			"weapon_damage_multiplier": weapon_damage_multiplier,
-			"ship_speed_multiplier": ship_speed_multiplier
+			"ship_speed_multiplier": ship_speed_multiplier,
+			"pickup_range_multiplier": pickup_range_multiplier,
+			"kills": kills,
+			"gold": gold,
+			"scrap": scrap
 		}
 	}
 	
@@ -209,6 +275,10 @@ func load_game() -> bool:
 		fire_rate_multiplier = gs.get("fire_rate_multiplier", 1.0)
 		weapon_damage_multiplier = gs.get("weapon_damage_multiplier", 1.0)
 		ship_speed_multiplier = gs.get("ship_speed_multiplier", 1.0)
+		pickup_range_multiplier = gs.get("pickup_range_multiplier", 1.0)
+		kills = gs.get("kills", 0)
+		gold = gs.get("gold", 0)
+		scrap = gs.get("scrap", 0)
 	
 	# Restore level state
 	if RunManager != null and save_data.has("level"):

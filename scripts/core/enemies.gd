@@ -4,6 +4,11 @@ extends CharacterBody2D
 
 @export var damage_per_second: float = 10.0
 @export var exp_crystal_scene: PackedScene = preload("res://scenes/gameplay/items/exp_crystal.tscn")
+@export var gold_drop_chance: float = 0.3  # 30% chance to drop gold
+@export var scrap_drop_chance: float = 0.2  # 20% chance to drop scrap
+
+var gold_pickup_scene: PackedScene = preload("res://scenes/gameplay/items/gold_pickup.tscn")
+var scrap_pickup_scene: PackedScene = preload("res://scenes/gameplay/items/scrap_pickup.tscn")
 
 var _target: Node2D = null
 var _health_component: HealthComponent = null
@@ -63,12 +68,30 @@ func _deal_damage_to(target: Node, delta: float) -> void:
 		health_comp.take_damage(damage_per_second * delta)
 
 func _on_death() -> void:
+	# Increment kill counter
+	if GameState:
+		GameState.add_kill()
+	
 	# Spawn exp crystal
 	if exp_crystal_scene:
 		var crystal := exp_crystal_scene.instantiate() as Node2D
 		if crystal:
 			get_parent().add_child(crystal)
 			crystal.global_position = global_position
+	
+	# Random chance to drop gold
+	if randf() < gold_drop_chance and gold_pickup_scene:
+		var gold := gold_pickup_scene.instantiate() as Node2D
+		if gold:
+			get_parent().add_child(gold)
+			gold.global_position = global_position + Vector2(randf_range(-10, 10), randf_range(-10, 10))
+	
+	# Random chance to drop scrap
+	if randf() < scrap_drop_chance and scrap_pickup_scene:
+		var scrap := scrap_pickup_scene.instantiate() as Node2D
+		if scrap:
+			get_parent().add_child(scrap)
+			scrap.global_position = global_position + Vector2(randf_range(-10, 10), randf_range(-10, 10))
 	
 	queue_free()
 
