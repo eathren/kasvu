@@ -3,7 +3,7 @@ extends CharacterBody2D
 ## Player ship - movement and shooting only
 ## Docking is handled by PlayerController
 
-signal lasers_toggled(is_on: bool)
+# signal lasers_toggled(is_on: bool)  # Unused - commented out
 
 @export var ship_stats: ShipStats = preload("res://resources/config/ships/player_ship_base.tres")
 

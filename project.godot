@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Kasvu"
-run/main_scene="uid://c1fqem14ng62h"
+run/main_scene="res://ui/menus/main_menu.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -22,6 +22,7 @@ TechManager="*res://autoloads/tech_manager.gd"
 SpawnManager="*res://autoloads/spawn_manager.gd"
 RunManager="*res://autoloads/run_manager.gd"
 ControlManager="*res://autoloads/control_manager.gd"
+NetworkManager="*res://autoloads/network_manager.gd"
 SceneTransition="*res://ui/transitions/scene_transition.tscn"
 
 [display]

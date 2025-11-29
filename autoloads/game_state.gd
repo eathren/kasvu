@@ -46,7 +46,67 @@ var is_spawning_player_ship: bool = false
 
 # Save/load system
 var save_data: Dictionary = {}
-const SAVE_FILE_PATH: String = "user://savegame.save"  
+var current_save_slot: int = 1  # 1-3
+const SAVE_FILE_PATH_TEMPLATE: String = "user://savegame_slot_%d.save"
+
+func get_save_file_path(slot: int = -1) -> String:
+	"""Get the save file path for a specific slot"""
+	var save_slot := slot if slot > 0 else current_save_slot
+	return SAVE_FILE_PATH_TEMPLATE % save_slot
+
+func save_slot_exists(slot: int) -> bool:
+	"""Check if a save slot has data"""
+	return FileAccess.file_exists(get_save_file_path(slot))
+
+func get_save_slot_info(slot: int) -> Dictionary:
+	"""Get info about a save slot without fully loading it"""
+	if not save_slot_exists(slot):
+		return {"exists": false}
+	
+	var file := FileAccess.open(get_save_file_path(slot), FileAccess.READ)
+	if file == null:
+		return {"exists": false}
+	
+	var json_string := file.get_as_text()
+	file.close()
+	
+	var json := JSON.new()
+	if json.parse(json_string) != OK:
+		return {"exists": false}
+	
+	var data := json.data as Dictionary
+	return {
+		"exists": true,
+		"level": data.get("level", 1),
+		"kills": data.get("game_state", {}).get("kills", 0),
+		"playtime": data.get("level_start_time", 0.0)
+	}
+
+func reset_run() -> void:
+	"""Reset all run-specific stats for a new game"""
+	current_level = 1
+	current_xp = 0
+	xp_to_next_level = 30
+	kills = 0
+	gold = 0
+	scrap = 0
+	
+	# Reset multipliers to base
+	scroll_multiplier = 1.0
+	laser_multiplier = 1.0
+	enemy_speed_multiplier = 1.0
+	trawler_speed_multiplier = 1.0
+	mine_width_multiplier = 1.0
+	
+	# Reset weapons (keep base weapon)
+	unlocked_weapons = [0]
+	weapon_levels = {0: 1}
+	fire_rate_multiplier = 1.0
+	weapon_damage_multiplier = 1.0
+	ship_speed_multiplier = 1.0
+	pickup_range_multiplier = 1.0
+	
+	print("GameState: Run reset to defaults")  
 
 func get_scroll_speed() -> float:
 	return base_scroll_speed * scroll_multiplier
@@ -190,12 +250,10 @@ func get_scrap() -> int:
 	return scrap
 
 ## Save game state to file
-func save_game() -> bool:
-	if RunManager == null:
-		push_warning("GameState: RunManager not available for saving")
-		return false
+func save_game(slot: int = -1) -> bool:
+	if slot > 0:
+		current_save_slot = slot
 	
-	# Collect save data
 	if RunManager == null:
 		push_warning("GameState: RunManager not available for saving")
 		return false
@@ -227,25 +285,28 @@ func save_game() -> bool:
 	}
 	
 	# Save to file
-	var file := FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
+	var json_string := JSON.stringify(save_data, "\t")
+	var file := FileAccess.open(get_save_file_path(), FileAccess.WRITE)
 	if file == null:
 		push_error("GameState: Failed to open save file for writing")
 		return false
 	
-	var json_string := JSON.stringify(save_data)
 	file.store_string(json_string)
 	file.close()
 	
-	print("GameState: Game saved successfully")
+	print("GameState: Game saved successfully to slot ", current_save_slot)
 	return true
 
 ## Load game state from file
-func load_game() -> bool:
-	if not FileAccess.file_exists(SAVE_FILE_PATH):
-		push_warning("GameState: No save file found")
+func load_game(slot: int = -1) -> bool:
+	if slot > 0:
+		current_save_slot = slot
+	
+	if not save_slot_exists(current_save_slot):
+		push_warning("GameState: No save file found in slot ", current_save_slot)
 		return false
 	
-	var file := FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
+	var file := FileAccess.open(get_save_file_path(), FileAccess.READ)
 	if file == null:
 		push_error("GameState: Failed to open save file for reading")
 		return false
@@ -298,10 +359,13 @@ func load_game() -> bool:
 
 ## Check if save file exists
 func has_save_file() -> bool:
-	return FileAccess.file_exists(SAVE_FILE_PATH)
+	return save_slot_exists(current_save_slot)
 
 ## Delete save file
-func delete_save() -> void:
-	if FileAccess.file_exists(SAVE_FILE_PATH):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_FILE_PATH))
-		print("GameState: Save file deleted")
+func delete_save(slot: int = -1) -> void:
+	if slot > 0:
+		current_save_slot = slot
+	var save_path := get_save_file_path()
+	if FileAccess.file_exists(save_path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))
+		print("GameState: Save file deleted from slot ", current_save_slot)

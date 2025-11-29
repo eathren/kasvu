@@ -37,30 +37,14 @@ func start_run(run_seed: int = 0) -> void:
 
 ## Load a level scene with simple fade transition
 func _load_level(path: String) -> void:
-	var main := get_tree().root.get_node_or_null("Main")
-	if main == null:
-		push_error("RunManager: Main node not found in scene tree")
-		return
-	
-	var level_slot := main.get_node_or_null("CurrentLevel")
-	if level_slot == null:
-		push_error("RunManager: CurrentLevel node not found under Main")
-		return
-	
 	# Fade in (to black)
 	print("RunManager: Starting fade in")
 	if SceneTransition:
 		await SceneTransition.fade_in()
 	print("RunManager: Fade in complete")
 	
-	# Clear old level
-	for child in level_slot.get_children():
-		child.queue_free()
-	
-	await get_tree().process_frame
-	
-	# Load and instantiate new level
-	print("RunManager: Loading level: ", path)
+	# Load and change to level scene
+	print("RunManager: Loading level scene: ", path)
 	var packed := load(path) as PackedScene
 	if packed == null:
 		push_error("RunManager: Failed to load level scene: " + path)
@@ -68,15 +52,16 @@ func _load_level(path: String) -> void:
 			await SceneTransition.fade_out()
 		return
 	
-	print("RunManager: Instantiating level")
-	var level := packed.instantiate()
-	level_slot.add_child(level)
-	current_level = level
+	print("RunManager: Changing to level scene")
+	get_tree().change_scene_to_packed(packed)
 	
-	# Wait for level's _ready() to complete (generation is now synchronous)
+	# Wait for level's _ready() to complete
 	print("RunManager: Waiting for level _ready()")
 	await get_tree().process_frame
 	await get_tree().process_frame
+	
+	# Get reference to current level
+	current_level = get_tree().current_scene
 	
 	print("RunManager: Level ready, fading out")
 	# Fade out (from black)

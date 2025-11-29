@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://bq8x7k2m3n4p5"]
+[gd_scene load_steps=9 format=3 uid="uid://bq8x7k2m3n4p5"]
 
 [ext_resource type="PackedScene" uid="uid://bmqm3l87s438b" path="res://systems/world/world_root.tscn" id="1_world"]
 [ext_resource type="PackedScene" uid="uid://dwjxh6hrypua3" path="res://entities/vehicles/trawler/trawler.tscn" id="2_trawler"]
@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://bj53eukoey856" path="res://entities/player/crew/player.tscn" id="4_vf3cy"]
 [ext_resource type="Script" uid="uid://cv2f2q1r0sxdk" path="res://entities/player/camera_2d.gd" id="5_hiir4"]
 [ext_resource type="Script" path="res://entities/player/player_controller.gd" id="6_controller"]
+[ext_resource type="PackedScene" uid="uid://hud_uid_12345" path="res://ui/hud/game_hud.tscn" id="7_hud"]
+[ext_resource type="PackedScene" uid="uid://pause_menu_uid" path="res://ui/menus/pause_menu.tscn" id="8_pause"]
 
 [node name="Level_Mine" type="Node2D"]
 script = ExtResource("3_script")
@@ -15,14 +17,10 @@ script = ExtResource("3_script")
 [node name="Trawler" parent="." instance=ExtResource("2_trawler")]
 position = Vector2(74, -44)
 
-[node name="Player" parent="Trawler/InteriorRoot" instance=ExtResource("4_vf3cy")]
-position = Vector2(0, 30)
 
-[node name="Camera2D" type="Camera2D" parent="Trawler/InteriorRoot/Player"]
-zoom = Vector2(2, 2)
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="PlayerController" type="Node" parent="." node_paths=PackedStringArray("crew_avatar", "camera")]
-script = ExtResource("6_controller")
-player_id = 0
-crew_avatar = NodePath("../Trawler/InteriorRoot/Player")
-camera = NodePath("../Trawler/InteriorRoot/Player/Camera2D")
+[node name="GameHUD" parent="CanvasLayer" instance=ExtResource("7_hud")]
+
+[node name="PauseMenu" parent="CanvasLayer" instance=ExtResource("8_pause")]
+visible = false

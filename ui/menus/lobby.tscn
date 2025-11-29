@@ -1,0 +1,83 @@
+[gd_scene load_steps=2 format=3 uid="uid://da0h4l6n8y3x5"]
+
+[ext_resource type="Script" path="res://ui/menus/lobby.gd" id="1_lobby"]
+
+[node name="Lobby" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lobby")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -200.0
+offset_right = 250.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LobbyPanel" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/LobbyPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "MULTIPLAYER LOBBY"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="CenterContainer/LobbyPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Waiting for players..."
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/LobbyPanel"]
+layout_mode = 2
+
+[node name="PlayersLabel" type="Label" parent="CenterContainer/LobbyPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Connected Players:"
+horizontal_alignment = 1
+
+[node name="PlayerList" type="VBoxContainer" parent="CenterContainer/LobbyPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HSeparator2" type="HSeparator" parent="CenterContainer/LobbyPanel"]
+layout_mode = 2
+
+[node name="StartButton" type="Button" parent="CenterContainer/LobbyPanel"]
+custom_minimum_size = Vector2(400, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "START GAME"
+
+[node name="LeaveButton" type="Button" parent="CenterContainer/LobbyPanel"]
+custom_minimum_size = Vector2(400, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "LEAVE LOBBY"
+
+[connection signal="pressed" from="CenterContainer/LobbyPanel/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="CenterContainer/LobbyPanel/LeaveButton" to="." method="_on_leave_button_pressed"]
+

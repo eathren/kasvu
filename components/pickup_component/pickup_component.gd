@@ -52,11 +52,19 @@ func _physics_process(delta: float) -> void:
 		_collect()
 
 func _on_body_entered(body: Node2D) -> void:
+	# Only host/server processes pickups
+	if not multiplayer.is_server():
+		return
+	
 	if _can_pick_up(body):
 		_target = body
 		_is_being_collected = true
 
 func _on_area_entered(area: Area2D) -> void:
+	# Only host/server processes pickups
+	if not multiplayer.is_server():
+		return
+	
 	var parent := area.get_parent()
 	if parent and _can_pick_up(parent):
 		_target = parent
@@ -74,8 +82,22 @@ func _can_pick_up(node: Node2D) -> bool:
 	return false
 
 func _collect() -> void:
+	# Only host/server processes collection
+	if not multiplayer.is_server():
+		return
+	
 	collected.emit(_target)
 	_play_pickup_sound()
+	
+	# Notify clients to play sound effect
+	if multiplayer.get_peers().size() > 0:
+		_play_pickup_sound_on_clients.rpc()
+
+@rpc("authority", "call_remote")
+func _play_pickup_sound_on_clients() -> void:
+	"""Called on clients to play the pickup sound effect"""
+	if _audio_player and pickup_sound:
+		_audio_player.play()
 
 func _play_pickup_sound() -> void:
 	if not _area_2d or not _audio_player or not pickup_sound:
