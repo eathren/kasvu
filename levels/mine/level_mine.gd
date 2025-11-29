@@ -23,21 +23,17 @@ func _ready() -> void:
 	var trawler_local := wall.to_local(trawler_pos)
 	var trawler_cell := wall.local_to_map(trawler_local)
 	
-	# Only host generates the world
-	if multiplayer.is_server():
-		# Create generator with config from RunManager
-		var gen := MineGenerator.new(RunManager.get_generator_config())
-		
-		# Generate level data
-		var level_data := gen.build_level(RunManager.current_seed, trawler_cell)
-		
-		# Apply tiles to TileMap
-		_apply_tiles(level_data)
-		
-		print("Level_Mine: Level generated with %d wall cells" % level_data["wall_cells"].size())
-	else:
-		# Clients wait for world sync from host
-		print("Level_Mine: Client waiting for world sync from host")
+	# Both host and clients generate the world using the same seed
+	# This ensures deterministic generation - no need to sync tiles!
+	var gen := MineGenerator.new(RunManager.get_generator_config())
+	
+	# Generate level data using shared seed
+	var level_data := gen.build_level(RunManager.current_seed, trawler_cell)
+	
+	# Apply tiles to TileMap
+	_apply_tiles(level_data)
+	
+	print("Level_Mine: Level generated with %d wall cells (seed: %d)" % [level_data["wall_cells"].size(), RunManager.current_seed])
 	
 	# Setup SpawnManager
 	if SpawnManager != null:
@@ -47,13 +43,22 @@ func _ready() -> void:
 	if enemy_scene == null:
 		enemy_scene = load("res://entities/enemies/imp/imp.tscn") as PackedScene
 	
+	# Clear any existing player controllers (in case of reload)
+	for controller in _player_controllers.values():
+		if is_instance_valid(controller):
+			controller.queue_free()
+	_player_controllers.clear()
+	
 	# Spawn player controllers for all connected players
 	_spawn_player_controllers()
 	
 	# Connect to network signals for late joiners
-	if NetworkManager:
-		NetworkManager.player_connected.connect(_on_player_connected)
-		NetworkManager.player_disconnected.connect(_on_player_disconnected)
+	var net_manager = get_node_or_null("/root/NetworkManager")
+	if net_manager:
+		if not net_manager.player_connected.is_connected(_on_player_connected):
+			net_manager.player_connected.connect(_on_player_connected)
+		if not net_manager.player_disconnected.is_connected(_on_player_disconnected):
+			net_manager.player_disconnected.connect(_on_player_disconnected)
 
 func _process(delta: float) -> void:
 	# Spawn enemies at the specified rate
@@ -66,13 +71,14 @@ func _process(delta: float) -> void:
 
 func _spawn_player_controllers() -> void:
 	"""Spawn a PlayerController for each connected player"""
-	if not NetworkManager:
+	var net_manager = get_node_or_null("/root/NetworkManager")
+	if not net_manager or not net_manager.is_multiplayer():
 		# Singleplayer - spawn one controller for local player
 		_spawn_player_controller(1)
 		return
 	
 	# Multiplayer - spawn controller for each peer
-	for peer_id in NetworkManager.players.keys():
+	for peer_id in net_manager.players.keys():
 		_spawn_player_controller(peer_id)
 
 func _spawn_player_controller(peer_id: int) -> void:
@@ -81,6 +87,13 @@ func _spawn_player_controller(peer_id: int) -> void:
 		print("Level_Mine: PlayerController already exists for peer ", peer_id)
 		return
 	
+	# Clean up any existing crew avatars in trawler (prevents duplicates on reload)
+	var interior := trawler.get_node_or_null("InteriorRoot")
+	if interior:
+		for child in interior.get_children():
+			if child.is_in_group("player"):
+				child.queue_free()
+	
 	# Spawn crew avatar
 	var crew := crew_scene.instantiate() as CharacterBody2D
 	if not crew:
@@ -88,13 +101,23 @@ func _spawn_player_controller(peer_id: int) -> void:
 		return
 	
 	# Add crew to trawler interior
-	trawler.get_node("InteriorRoot").add_child(crew)
+	if not interior:
+		push_error("Level_Mine: Trawler InteriorRoot not found")
+		return
+	
+	interior.add_child(crew)
 	crew.position = Vector2(0, 30)  # Starting position in trawler
 	
 	# Create camera
 	var camera := Camera2D.new()
 	camera.zoom = Vector2(2, 2)
+	camera.position = Vector2.ZERO
+	camera.enabled = true
 	crew.add_child(camera)
+	
+	# Make it current after adding to tree
+	await get_tree().process_frame
+	camera.make_current()
 	
 	# Create PlayerController
 	var controller_script := load("res://entities/player/player_controller.gd")
@@ -159,6 +182,18 @@ func _spawn_enemy() -> void:
 	parent.add_child(enemy)
 	enemy.global_position = spawn_pos
 
+## Sync a tile deletion to all clients (called when mining/destroying tiles)
+func sync_tile_deletion(cell: Vector2i) -> void:
+	"""Called by host when a tile is destroyed - syncs to clients"""
+	if multiplayer.is_server():
+		_delete_tile_on_clients.rpc(cell)
+
+@rpc("authority", "call_remote")
+func _delete_tile_on_clients(cell: Vector2i) -> void:
+	"""Clients receive and delete a tile"""
+	if wall:
+		wall.erase_cell(cell)
+
 ## Apply generated tile data to the TileMap
 func _apply_tiles(level_data: Dictionary) -> void:
 	if wall == null:
@@ -181,30 +216,3 @@ func _apply_tiles(level_data: Dictionary) -> void:
 		wall.set_cell(cell, tile_source_id, wall_atlas_coord)
 	
 	print("Level_Mine: Applied %d tiles to TileMap" % wall_cells.size())
-	
-	# Sync tiles to clients in chunks (to avoid huge RPC)
-	if multiplayer.is_server() and multiplayer.get_peers().size() > 0:
-		_sync_tiles_to_clients(wall_cells, tile_source_id, wall_atlas_coord)
-
-func _sync_tiles_to_clients(wall_cells: Array, source_id: int, atlas_coord: Vector2i) -> void:
-	"""Send tiles to clients in chunks to avoid overwhelming the network"""
-	var chunk_size := 1000
-	var cell_count := wall_cells.size()
-	var total_chunks := ceili(float(cell_count) / float(chunk_size))
-	
-	for i in range(total_chunks):
-		var start := i * chunk_size
-		var end := mini(start + chunk_size, cell_count)
-		var chunk := wall_cells.slice(start, end)
-		_apply_tile_chunk.rpc(chunk, source_id, atlas_coord)
-	
-	print("Level_Mine: Synced %d tiles to clients in %d chunks" % [cell_count, total_chunks])
-
-@rpc("authority", "call_remote")
-func _apply_tile_chunk(chunk: Array, source_id: int, atlas_coord: Vector2i) -> void:
-	"""Clients receive and apply a chunk of tiles"""
-	if not wall:
-		return
-	
-	for cell in chunk:
-		wall.set_cell(cell, source_id, atlas_coord)

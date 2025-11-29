@@ -28,9 +28,9 @@ func _on_resume_button_pressed() -> void:
 func _on_save_button_pressed() -> void:
 	if NetworkManager.is_host:
 		GameState.save_game()
-		$VBoxContainer/SaveButton.text = "SAVED!"
+		$CenterContainer/VBoxContainer/SaveButton.text = "SAVED!"
 		await get_tree().create_timer(1.0).timeout
-		$VBoxContainer/SaveButton.text = "SAVE GAME"
+		$CenterContainer/VBoxContainer/SaveButton.text = "SAVE GAME"
 	else:
 		print("PauseMenu: Only host can save")
 
@@ -39,4 +39,3 @@ func _on_quit_button_pressed() -> void:
 	await SceneTransition.fade_in()
 	get_tree().change_scene_to_file("res://ui/menus/main_menu.tscn")
 	await SceneTransition.fade_out()
-

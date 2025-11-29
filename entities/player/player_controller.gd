@@ -119,12 +119,16 @@ func _update_camera() -> void:
 		return
 	
 	# Reparent camera to target
-	if camera.get_parent():
-		camera.get_parent().remove_child(camera)
+	if camera.get_parent() != target:
+		if camera.get_parent():
+			camera.get_parent().remove_child(camera)
+		
+		target.add_child(camera)
+		camera.position = Vector2.ZERO
 	
-	target.add_child(camera)
-	camera.position = Vector2.ZERO
+	# Make this camera current
 	camera.enabled = true
+	camera.make_current()
 
 func is_controlling_ship() -> bool:
 	return current_ship != null

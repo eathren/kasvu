@@ -154,6 +154,12 @@ func _erase_wall_cell(wall: TileMapLayer, cell: Vector2i, wall_source_id: int, w
 		# Only erase wall tiles, not ground
 		if source_id == wall_source_id and atlas_coord == wall_atlas_coord:
 			wall.erase_cell(cell)
+			
+			# Sync to clients if in multiplayer (only host deletes tiles)
+			if multiplayer.is_server():
+				var level := get_tree().current_scene
+				if level and level.has_method("sync_tile_deletion"):
+					level.sync_tile_deletion(cell)
 
 func set_is_casting(cast: bool) -> void:
 	is_casting = cast
