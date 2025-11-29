@@ -21,7 +21,6 @@ GameState="*res://autoload/game_state.gd"
 TechManager="*res://autoload/tech_manager.gd"
 SpawnManager="*res://autoload/spawn_manager.gd"
 RunManager="*res://autoload/run_manager.gd"
-SceneLoader="*res://autoload/scene_loader.gd"
 SceneTransition="*res://scenes/ui/scene_transition.tscn"
 
 [display]

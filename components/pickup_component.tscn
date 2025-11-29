@@ -4,11 +4,5 @@
 
 [node name="PickupComponent" type="Node"]
 script = ExtResource("1_pickup")
-base_magnet_speed = null
-base_collection_distance = null
-can_be_picked_by_trawler = null
-can_be_picked_by_player = null
-can_be_picked_by_ship = null
-pickup_sound = null
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
