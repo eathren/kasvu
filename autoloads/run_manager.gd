@@ -24,16 +24,16 @@ func _ready() -> void:
 	pass
 
 ## Start a new run with a seed
-func start_run(seed: int = 0) -> void:
-	if seed == 0:
-		seed = randi()
+func start_run(run_seed: int = 0) -> void:
+	if run_seed == 0:
+		run_seed = randi()
 	
-	current_seed = seed
+	current_seed = run_seed
 	current_level_num = 1
 	level_start_time = Time.get_ticks_msec() / 1000.0
 	
 	_load_level("res://levels/mine/level_mine.tscn")
-	run_started.emit(seed)
+	run_started.emit(run_seed)
 
 ## Load a level scene with simple fade transition
 func _load_level(path: String) -> void:

@@ -4,3 +4,5 @@
 
 [resource]
 script = ExtResource("1_loot")
+gold_drop_chance = 0.05
+scrap_drop_chance = 0.1

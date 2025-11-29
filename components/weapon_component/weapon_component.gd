@@ -134,9 +134,9 @@ func _fire_bullet(target: Node2D, origin: Node2D) -> void:
 		if GameState and GameState.has_method("get_weapon_damage_multiplier"):
 			bullet_damage = int(bullet_damage * GameState.get_weapon_damage_multiplier())
 		
-		if bullet.has_variable("speed"):
+		if "speed" in bullet:
 			bullet.speed = bullet_speed
-		if bullet.has_variable("damage"):
+		if "damage" in bullet:
 			bullet.damage = bullet_damage
 		
 		# Set position & rotation
@@ -151,7 +151,7 @@ func _fire_bullet(target: Node2D, origin: Node2D) -> void:
 		bullet.global_rotation = final_angle
 		
 		# Assign faction if available
-		if bullet.has_variable("faction") and _owner_body and _owner_body.has_method("get_node_or_null"):
+		if "faction" in bullet and _owner_body and _owner_body.has_method("get_node_or_null"):
 			var faction_component := _owner_body.get_node_or_null("FactionComponent")
 			if faction_component:
 				bullet.faction = faction_component.faction
@@ -217,9 +217,9 @@ func _fire_bullet_in_direction(origin: Node2D, direction: Vector2) -> void:
 		if GameState and GameState.has_method("get_weapon_damage_multiplier"):
 			bullet_damage = int(bullet_damage * GameState.get_weapon_damage_multiplier())
 		
-		if bullet.has_variable("speed"):
+		if "speed" in bullet:
 			bullet.speed = bullet_speed
-		if bullet.has_variable("damage"):
+		if "damage" in bullet:
 			bullet.damage = bullet_damage
 		
 		# Set position & rotation
@@ -232,7 +232,7 @@ func _fire_bullet_in_direction(origin: Node2D, direction: Vector2) -> void:
 		bullet.global_rotation = final_angle
 		
 		# Assign faction if available
-		if bullet.has_variable("faction") and _owner_body and _owner_body.has_method("get_node_or_null"):
+		if "faction" in bullet and _owner_body and _owner_body.has_method("get_node_or_null"):
 			var faction_component := _owner_body.get_node_or_null("FactionComponent")
 			if faction_component:
 				bullet.faction = faction_component.faction

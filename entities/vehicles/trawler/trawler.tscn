@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://dwjxh6hrypua3"]
+[gd_scene load_steps=14 format=3 uid="uid://dwjxh6hrypua3"]
 
 [ext_resource type="Script" uid="uid://b31epxhbt6duc" path="res://entities/vehicles/trawler/trawler.gd" id="1_byw1e"]
 [ext_resource type="PackedScene" uid="uid://bqe8adk2boluh" path="res://systems/combat/laser.tscn" id="1_laser"]
@@ -7,13 +7,10 @@
 [ext_resource type="PackedScene" uid="uid://ov1wf3squcqg" path="res://entities/vehicles/trawler/ladder_dock.tscn" id="8_fg2qg"]
 [ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component/health_component.tscn" id="9_health"]
 [ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component/speed_component.tscn" id="10_speed"]
-[ext_resource type="PackedScene" path="res://entities/vehicles/trawler/ship_dock.tscn" id="11_ship_dock"]
+[ext_resource type="PackedScene" uid="uid://bblf61bcy8jv3" path="res://entities/vehicles/trawler/ship_dock.tscn" id="11_ship_dock"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c0e4k"]
 size = Vector2(94, 290)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_xl6pg"]
-size = Vector2(159, 184)
 
 [sub_resource type="SegmentShape2D" id="SegmentShape2D_lvan5"]
 a = Vector2(40, 10)
@@ -153,8 +150,6 @@ position = Vector2(-12, 145)
 
 [node name="ShipDock3" parent="." instance=ExtResource("11_ship_dock")]
 position = Vector2(12, 145)
-dock_side = "right"
 
 [node name="ShipDock4" parent="." instance=ExtResource("11_ship_dock")]
 position = Vector2(35, 145)
-dock_side = "right"

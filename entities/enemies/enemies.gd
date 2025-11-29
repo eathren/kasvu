@@ -104,8 +104,8 @@ func _spawn_loot_from_table() -> void:
 		var gold := gold_pickup_scene.instantiate() as Node2D
 		if gold and "amount" in gold:
 			gold.amount = gold_amount
-			get_parent().add_child(gold)
 			gold.global_position = global_position + Vector2(randf_range(-10, 10), randf_range(-10, 10))
+			get_parent().call_deferred("add_child", gold)
 	
 	# Random chance for scrap
 	if randf() < loot_table.scrap_drop_chance and scrap_pickup_scene:
@@ -113,8 +113,8 @@ func _spawn_loot_from_table() -> void:
 		var scrap := scrap_pickup_scene.instantiate() as Node2D
 		if scrap and "amount" in scrap:
 			scrap.amount = scrap_amount
-			get_parent().add_child(scrap)
 			scrap.global_position = global_position + Vector2(randf_range(-10, 10), randf_range(-10, 10))
+			get_parent().call_deferred("add_child", scrap)
 
 func _spawn_exp_crystal(amount: int = 10) -> void:
 	"""Spawn an exp crystal"""
@@ -125,8 +125,8 @@ func _spawn_exp_crystal(amount: int = 10) -> void:
 	if crystal:
 		if "xp_value" in crystal:
 			crystal.xp_value = amount
-		get_parent().add_child(crystal)
 		crystal.global_position = global_position
+		get_parent().call_deferred("add_child", crystal)
 
 func take_damage(amount: float) -> void:
 	if _health_component:

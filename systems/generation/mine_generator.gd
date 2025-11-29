@@ -27,12 +27,12 @@ func _init(config: Dictionary = {}) -> void:
 
 ## Generate level data from seed
 ## Returns a dictionary with wall_cells array and trawler_start_cell
-func build_level(seed: int, trawler_start_cell_pos: Vector2i = Vector2i.ZERO) -> Dictionary:
+func build_level(level_seed: int, trawler_start_cell_pos: Vector2i = Vector2i.ZERO) -> Dictionary:
 	wall_cells.clear()
 	
-	# Use seed for random generation if needed (for now, deterministic)
+	# Use level_seed for random generation if needed (for now, deterministic)
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(seed)
+	rng.seed = hash(level_seed)
 	
 	# If no trawler position provided, use origin
 	if trawler_start_cell_pos == Vector2i.ZERO:

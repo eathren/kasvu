@@ -68,13 +68,13 @@ kasvu/
 │       ├── wall.gd            # Wall/tile management
 │       └── world_root.tscn    # World container
 └── ui/                         # User interface
-    ├── hud/                   # In-game HUD
-    │   ├── game_hud.tscn      # Main HUD
-    │   └── interaction_prompt.tscn
-    ├── menus/                 # Menu screens (pause, settings, etc.)
-    └── transitions/           # Scene transitions and loading screens
-        ├── scene_transition.tscn
-        └── loading_screen.tscn
+	├── hud/                   # In-game HUD
+	│   ├── game_hud.tscn      # Main HUD
+	│   └── interaction_prompt.tscn
+	├── menus/                 # Menu screens (pause, settings, etc.)
+	└── transitions/           # Scene transitions and loading screens
+		├── scene_transition.tscn
+		└── loading_screen.tscn
 ```
 
 ## Key Principles
@@ -131,4 +131,3 @@ kasvu/
 2. Let Godot reimport/update references
 3. Test the game to ensure everything works
 4. Continue development with clean structure!
-
