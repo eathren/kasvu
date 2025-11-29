@@ -25,6 +25,9 @@ var lasers_enabled: bool = false
 
 func _ready() -> void:
 	add_to_group("player_ship")
+	
+	# Lasers always on for mining
+	lasers_enabled = true
 	_update_lasers()
 	
 	# Apply stats from ship_stats resource
@@ -43,9 +46,13 @@ func _ready() -> void:
 		if left_laser:
 			left_laser.color = ship_stats.laser_color
 			left_laser.width = ship_stats.laser_width
+			left_laser.direction = Vector2.UP  # Point forward
+			left_laser.max_range = 30.0  # Short mining range
 		if right_laser:
 			right_laser.color = ship_stats.laser_color
 			right_laser.width = ship_stats.laser_width
+			right_laser.direction = Vector2.UP  # Point forward
+			right_laser.max_range = 30.0  # Short mining range
 
 func _physics_process(delta: float) -> void:
 	if not is_active or not owner_controller:
@@ -72,17 +79,11 @@ func _input(event: InputEvent) -> void:
 	if not is_active or not owner_controller:
 		return
 	
-	# Toggle lasers
-	if event.is_action_pressed("interact"):
-		lasers_enabled = not lasers_enabled
-		_update_lasers()
-		lasers_toggled.emit(lasers_enabled)
-	
-	# Try to dock
+	# Try to dock (E key)
 	if event.is_action_pressed("interact"):
 		try_dock()
 	
-	# Fire weapons
+	# Fire weapons (Shoot or Space)
 	if event.is_action_pressed("shoot") or event.is_action_pressed("ui_accept"):
 		_fire_weapons()
 
@@ -114,9 +115,15 @@ func _update_lasers() -> void:
 func activate() -> void:
 	is_active = true
 	visible = true
+	# Ensure lasers are on when ship activates
+	lasers_enabled = true
+	_update_lasers()
 
 func deactivate() -> void:
 	is_active = false
+	# Turn off lasers when ship deactivates
+	lasers_enabled = false
+	_update_lasers()
 
 func set_ship_id(id: int) -> void:
 	ship_id = id

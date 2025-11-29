@@ -50,27 +50,40 @@ func _update_laser(delta: float) -> void:
 	
 	var end_point: Vector2
 	if raycast.is_colliding():
-		# Hit something - draw to collision point
+		# Hit something - check if within range
 		var collision_point := raycast.get_collision_point()
-		end_point = to_local(collision_point)
+		var distance := global_position.distance_to(collision_point)
 		
-		# Apply damage to walls (with mining delay)
-		_apply_damage(collision_point, delta)
-		
-		# Update end particles
-		if particles_end:
-			particles_end.global_position = collision_point
-			particles_end.rotation = raycast.get_collision_normal().angle()
+		if distance <= max_range:
+			# Within range - show laser and mine
+			end_point = to_local(collision_point)
+			
+			# Apply damage to walls (with mining delay)
+			_apply_damage(collision_point, delta)
+			
+			# Update end particles
+			if particles_end:
+				particles_end.global_position = collision_point
+				particles_end.rotation = raycast.get_collision_normal().angle()
+				particles_end.emitting = true
+			
+			# Update line
+			line.points = PackedVector2Array([Vector2.ZERO, end_point])
+			line.visible = true
+		else:
+			# Hit is too far - hide laser
+			line.visible = false
+			if particles_end:
+				particles_end.emitting = false
+			_mining_timer = 0.0
+			_current_mining_cell = Vector2i(-99999, -99999)
 	else:
-		# No collision - reset mining timer
+		# No collision - hide laser and reset mining timer
+		line.visible = false
+		if particles_end:
+			particles_end.emitting = false
 		_mining_timer = 0.0
 		_current_mining_cell = Vector2i(-99999, -99999)
-		# No collision - draw to max range
-		end_point = raycast.target_position
-	
-	# Update line
-	line.points = PackedVector2Array([Vector2.ZERO, end_point])
-	line.visible = true
 
 func _apply_damage(hit_point: Vector2, delta: float) -> void:
 	# Find wall tilemap and erase walls along the laser path

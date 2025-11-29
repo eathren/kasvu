@@ -7,5 +7,5 @@ script = ExtResource("1_stats")
 max_health = 500
 base_speed = 5.0
 pickup_range = 150.0
-laser_width = 80.0
+laser_width = 100.0
 laser_color = Color(1, 0.65, 0, 1)
