@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://boh8omfxids3v"]
+
+[ext_resource type="Texture2D" uid="uid://he8h1jay4vgo" path="res://assets/art/lights/spotlight.png" id="1_mgra7"]
+[ext_resource type="Script" uid="uid://bwyhrrwaedlpt" path="res://components/lighting/ship_light_internal.gd" id="2_djee8"]
+
+[node name="ShipLightInternal" type="PointLight2D"]
+texture = ExtResource("1_mgra7")
+script = ExtResource("2_djee8")

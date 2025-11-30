@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://dwjxh6hrypua3"]
+[gd_scene load_steps=19 format=3 uid="uid://dwjxh6hrypua3"]
 
 [ext_resource type="Script" uid="uid://b31epxhbt6duc" path="res://entities/vehicles/trawler/trawler.gd" id="1_byw1e"]
 [ext_resource type="PackedScene" uid="uid://bqe8adk2boluh" path="res://systems/combat/laser.tscn" id="1_laser"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://ccioahkom5fb3" path="res://entities/player/ships/turret.tscn" id="5_t1h18"]
 [ext_resource type="Texture2D" uid="uid://ctj01b5tt5qtv" path="res://assets/art/lights/light.webp" id="7_08py4"]
 [ext_resource type="PackedScene" uid="uid://ov1wf3squcqg" path="res://entities/vehicles/trawler/ladder_dock.tscn" id="8_fg2qg"]
+[ext_resource type="PackedScene" uid="uid://boh8omfxids3v" path="res://components/lighting/ship_light_internal.tscn" id="8_npx26"]
 [ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component/health_component.tscn" id="9_health"]
 [ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component/speed_component.tscn" id="10_speed"]
 [ext_resource type="PackedScene" uid="uid://bblf61bcy8jv3" path="res://entities/vehicles/trawler/ship_dock.tscn" id="11_ship_dock"]
@@ -153,6 +154,7 @@ position = Vector2(24, 28)
 position = Vector2(24, 86)
 
 [node name="InteriorLight1" type="PointLight2D" parent="InteriorRoot"]
+visible = false
 position = Vector2(0, -60)
 color = Color(1, 0.85, 0.6, 1)
 energy = 0.5
@@ -161,6 +163,7 @@ texture = ExtResource("7_08py4")
 texture_scale = 2.5
 
 [node name="InteriorLight2" type="PointLight2D" parent="InteriorRoot"]
+visible = false
 color = Color(1, 0.85, 0.6, 1)
 energy = 0.5
 blend_mode = 2
@@ -168,12 +171,21 @@ texture = ExtResource("7_08py4")
 texture_scale = 2.5
 
 [node name="InteriorLight3" type="PointLight2D" parent="InteriorRoot"]
+visible = false
 position = Vector2(0, 60)
 color = Color(1, 0.85, 0.6, 1)
 energy = 0.5
 blend_mode = 2
 texture = ExtResource("7_08py4")
 texture_scale = 2.5
+
+[node name="ShipLightInternal" parent="InteriorRoot" instance=ExtResource("8_npx26")]
+position = Vector2(0, -95)
+
+[node name="ShipLightInternal2" parent="InteriorRoot" instance=ExtResource("8_npx26")]
+
+[node name="ShipLightInternal3" parent="InteriorRoot" instance=ExtResource("8_npx26")]
+position = Vector2(0, 79)
 
 [node name="FrontLaser" parent="." instance=ExtResource("1_laser")]
 position = Vector2(0, -145)
@@ -201,11 +213,10 @@ position = Vector2(-50, 28)
 position = Vector2(-20, 0)
 color = Color(0.2, 0.8, 1, 1)
 energy = 1.5
-texture = ExtResource("7_08py4")
-texture_scale = 3.0
 shadow_enabled = true
 shadow_filter = 1
-shadow_item_cull_mask = 1
+texture = ExtResource("7_08py4")
+texture_scale = 3.0
 
 [node name="ShipDock2" parent="." instance=ExtResource("11_ship_dock")]
 position = Vector2(-28, 133)
@@ -216,11 +227,10 @@ home_ship_id = 1
 position = Vector2(-20, 0)
 color = Color(0.2, 0.8, 1, 1)
 energy = 1.5
-texture = ExtResource("7_08py4")
-texture_scale = 3.0
 shadow_enabled = true
 shadow_filter = 1
-shadow_item_cull_mask = 1
+texture = ExtResource("7_08py4")
+texture_scale = 3.0
 
 [node name="ShipDock3" parent="." instance=ExtResource("11_ship_dock")]
 position = Vector2(50, 28)
@@ -243,18 +253,16 @@ home_ship_id = 3
 position = Vector2(20, 0)
 color = Color(0.2, 0.8, 1, 1)
 energy = 1.5
-texture = ExtResource("7_08py4")
-texture_scale = 3.0
 shadow_enabled = true
 shadow_filter = 1
-shadow_item_cull_mask = 1
+texture = ExtResource("7_08py4")
+texture_scale = 3.0
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_trawler")
 
 [node name="EngineGlow" type="PointLight2D" parent="."]
-visible = false
 position = Vector2(0, 145)
 color = Color(0.3, 0.6, 1, 1)
 energy = 1.2
