@@ -10,8 +10,7 @@ var trawler: Node = null
 var is_digging: bool = false  # Track if actively hitting tiles
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var drill_sound: AudioStreamPlayer2D = $DrillSound
-@onready var digging_sound: AudioStreamPlayer2D = $DiggingSound
+@onready var ambient_rumble: AudioStreamPlayer2D = $DrillSound
 
 func _ready() -> void:
 	# Get parent Trawler/Borer
@@ -57,12 +56,14 @@ func _update_animation() -> void:
 		animated_sprite.frame = 0
 
 func _update_audio() -> void:
-	# Drill sound plays when drill is active (spinning)
-	if drill_sound:
-		if is_active and not drill_sound.playing:
-			drill_sound.play()
-		elif not is_active and drill_sound.playing:
-			drill_sound.stop()
+
+	
+	# Ambient rumble plays continuously when active
+	if ambient_rumble:
+		if is_active and not ambient_rumble.playing:
+			ambient_rumble.play()
+		elif not is_active and ambient_rumble.playing:
+			ambient_rumble.stop()
 
 func _physics_process(delta: float) -> void:
 	if not is_active:
@@ -110,7 +111,7 @@ func _damage_overlapping_tiles(damage: float) -> void:
 	)
 	
 	# Convert to tile coordinates and damage all tiles in the drill area
-	var tile_size = 16  # Assuming 16x16 tiles
+	var tile_size = 16  # Assuming 16x16 tisles
 	var min_tile = wall_layer.local_to_map(wall_layer.to_local(drill_rect.position))
 	var max_tile = wall_layer.local_to_map(wall_layer.to_local(drill_rect.end))
 	
@@ -128,12 +129,3 @@ func _damage_overlapping_tiles(damage: float) -> void:
 	if tiles_damaged > 0:
 		print("Drill: Damaged ", tiles_damaged, " tiles with ", damage, " damage each")
 		
-		# Play digging sound when actively damaging tiles
-		##if digging_sound and not digging_sound.playing:
-			##digging_sound.play()
-		#is_digging = true
-	#else:
-		## Stop digging sound when not hitting tiles
-		#if digging_sound and digging_sound.playing:
-			#digging_sound.stop()
-		#is_digging = false
