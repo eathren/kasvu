@@ -92,6 +92,7 @@ interact={
 2d_physics/layer_9="Pickup"
 2d_physics/layer_10="InternalWall"
 2d_physics/layer_11="Ladder"
+2d_physics/layer_12="Drill"
 
 [rendering]
 

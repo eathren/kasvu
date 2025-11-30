@@ -1,7 +1,6 @@
 [gd_scene load_steps=20 format=3 uid="uid://dwjxh6hrypua3"]
 
 [ext_resource type="Script" uid="uid://b31epxhbt6duc" path="res://entities/vehicles/trawler/trawler.gd" id="1_byw1e"]
-[ext_resource type="PackedScene" uid="uid://bqe8adk2boluh" path="res://systems/combat/laser.tscn" id="1_laser"]
 [ext_resource type="Texture2D" uid="uid://d1x04najel8kl" path="res://assets/art/player/trawler.png" id="3_t1h18"]
 [ext_resource type="PackedScene" uid="uid://ccioahkom5fb3" path="res://entities/player/ships/turret.tscn" id="5_t1h18"]
 [ext_resource type="Texture2D" uid="uid://ctj01b5tt5qtv" path="res://assets/art/lights/light.webp" id="7_08py4"]
@@ -10,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component/health_component.tscn" id="9_health"]
 [ext_resource type="PackedScene" uid="uid://cktow4fougwxd" path="res://components/lighting/flashlight.tscn" id="10_i8mar"]
 [ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component/speed_component.tscn" id="10_speed"]
+[ext_resource type="PackedScene" uid="uid://yenc6seu8kjb" path="res://entities/vehicles/trawler/drill.tscn" id="11_i8mar"]
 [ext_resource type="PackedScene" uid="uid://bblf61bcy8jv3" path="res://entities/vehicles/trawler/ship_dock.tscn" id="11_ship_dock"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c0e4k"]
@@ -47,10 +47,23 @@ polygon = PackedVector2Array(-47, -144, 47, -144, 47, 145, -48, 145)
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_08py4"]
 polygon = PackedVector2Array(-33, 110, 33, 110, 33, -129, -32, -129)
 
-[node name="Borer" type="CharacterBody2D"]
+[node name="Trawler" type="CharacterBody2D"]
 collision_layer = 2
 collision_mask = 8
 script = ExtResource("1_byw1e")
+ship_stats = null
+burst_multiplier = null
+max_speed_for_line = null
+max_line_length = null
+line_lerp_speed = null
+
+[node name="Flashlight" parent="." instance=ExtResource("10_i8mar")]
+position = Vector2(42, -304.5)
+scale = Vector2(1, 1.0093749)
+
+[node name="Flashlight2" parent="." instance=ExtResource("10_i8mar")]
+position = Vector2(-42, -305.5)
+scale = Vector2(1, 1.0188376)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_c0e4k")
@@ -76,9 +89,6 @@ base_speed = 5.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("3_t1h18")
-
-[node name="DirectionLine" type="Line2D" parent="."]
-width = 6.0
 
 [node name="TurretsRoot" type="Node2D" parent="."]
 
@@ -188,22 +198,6 @@ position = Vector2(0, -95)
 [node name="ShipLightInternal3" parent="InteriorRoot" instance=ExtResource("8_npx26")]
 position = Vector2(0, 79)
 
-[node name="FrontLaser" parent="." instance=ExtResource("1_laser")]
-position = Vector2(0, -145)
-max_range = 20.0
-width = 80.0
-color = Color(1, 0.65, 0, 1)
-damage_per_second = 10.0
-direction = Vector2(0, -1)
-
-[node name="Flashlight" parent="." instance=ExtResource("10_i8mar")]
-position = Vector2(0, -307)
-color = Color(1, 0.96, 0.88, 1)
-energy = 1.2
-shadow_enabled = true
-shadow_filter = 1
-texture_scale = 0.625
-
 [node name="ShipDock1" parent="." instance=ExtResource("11_ship_dock")]
 position = Vector2(-50, 28)
 
@@ -273,3 +267,6 @@ occluder = SubResource("OccluderPolygon2D_p3rct")
 [node name="LightOccluder2D2" type="LightOccluder2D" parent="."]
 position = Vector2(0, 2)
 occluder = SubResource("OccluderPolygon2D_08py4")
+
+[node name="Drill" parent="." instance=ExtResource("11_i8mar")]
+position = Vector2(0, -160)

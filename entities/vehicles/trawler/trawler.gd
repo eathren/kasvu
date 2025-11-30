@@ -6,6 +6,9 @@ enum MovementState {
 	BURST
 }
 
+signal movement_state_changed(new_state: MovementState)
+signal drill_toggled(is_on: bool)
+
 @export var ship_stats: ShipStats = preload("res://resources/config/ships/trawler_base.tres")
 @export var burst_multiplier: float = 2.0
 @export var max_speed_for_line: float = 600.0
@@ -14,8 +17,6 @@ enum MovementState {
 
 var base_speed: float = 10.0  # Set from ship_stats in _ready()
 
-@onready var direction_line: Line2D = $DirectionLine
-@onready var front_laser: Laser = $FrontLaser
 @onready var enemy_detector: Area2D = $EnemyDetector
 
 var current_state: MovementState = MovementState.GO
@@ -40,11 +41,6 @@ func _ready() -> void:
 		if speed_component:
 			speed_component.base_speed = ship_stats.base_speed
 		
-		# Apply laser color/width
-		if front_laser:
-			front_laser.color = ship_stats.laser_color
-			front_laser.width = ship_stats.laser_width
-		
 		# Apply pickup range to PickupArea
 		var pickup_area := get_node_or_null("PickupArea") as Area2D
 		if pickup_area:
@@ -57,9 +53,7 @@ func _ready() -> void:
 	base_speed *= GameState.get_ship_speed_multiplier()
 	_update_speed_from_state()
 	
-	# Trawler laser is always on
-	if front_laser:
-		front_laser.set_is_casting(true)
+	
 	
 	# Connect enemy damage detection
 	if enemy_detector:
@@ -82,12 +76,12 @@ func _physics_process(delta: float) -> void:
 			velocity = Vector2.UP.rotated(rotation) * current_speed * 4
 
 	move_and_slide()
-	# Trawler laser is always on, no input needed
 
 func set_movement_state(new_state: MovementState) -> void:
 	if current_state != new_state:
 		current_state = new_state
 		_update_speed_from_state()
+		movement_state_changed.emit(new_state)
 
 func _update_speed_from_state() -> void:
 	match current_state:
