@@ -11,4 +11,3 @@ class_name LootTable
 @export var scrap_drop_chance: float = 0.2
 @export var scrap_amount_min: int = 1
 @export var scrap_amount_max: int = 3
-

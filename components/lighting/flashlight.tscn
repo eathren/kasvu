@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://flashlight_component"]
+
+[ext_resource type="Script" path="res://components/lighting/flashlight.gd" id="1_flashlight"]
+[ext_resource type="Texture2D" uid="uid://ctj01b5tt5qtv" path="res://assets/art/lights/light.webp" id="2_light_texture"]
+
+[node name="Flashlight" type="PointLight2D"]
+enabled = true
+texture = ExtResource("2_light_texture")
+blend_mode = 0
+script = ExtResource("1_flashlight")
+

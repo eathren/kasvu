@@ -17,6 +17,7 @@ texture = ExtResource("2_toecm")
 1:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, 6.974022, 8, -8, 8)
 
 [sub_resource type="TileSet" id="TileSet_nml2g"]
+occlusion_layer_0/light_mask = 1
 physics_layer_0/collision_layer = 8
 physics_layer_0/collision_mask = 23
 sources/2 = SubResource("TileSetAtlasSource_w4kyo")

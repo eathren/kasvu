@@ -22,7 +22,7 @@ var current_dock: Node2D = null
 @onready var weapon_manager: WeaponManager = $WeaponManager
 
 var lasers_enabled: bool = false
-var starting_weapon: WeaponData = preload("res://resources/config/weapons/basic_gun.tres")
+var starting_weapon := preload("res://resources/config/weapons/basic_gun.tres") as WeaponData
 
 func _ready() -> void:
 	add_to_group("player_ship")

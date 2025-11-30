@@ -54,4 +54,3 @@ enum FirePattern {
 @export var max_level: int = 7
 @export var evolution_weapon: WeaponData = null  # What this evolves into at max level
 @export var evolution_requirements: Array[String] = []  # Required items for evolution
-

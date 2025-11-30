@@ -1,13 +1,15 @@
-[gd_scene load_steps=10 format=3 uid="uid://dvdwdt6vbluqh"]
+[gd_scene load_steps=14 format=3 uid="uid://dvdwdt6vbluqh"]
 
 [ext_resource type="PackedScene" uid="uid://bqe8adk2boluh" path="res://systems/combat/laser.tscn" id="1_laser"]
 [ext_resource type="Script" uid="uid://cdwve1ivpvgr2" path="res://entities/player/ships/player_ship/player_ship.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://btyw6bsgsr1vg" path="res://assets/art/player/player.png" id="2_1vmog"]
+[ext_resource type="Texture2D" uid="uid://b2ihvqn00raa6" path="res://assets/art/lights/flashlight.png" id="2_us2pq"]
+[ext_resource type="Script" uid="uid://d4it5a783i6g7" path="res://components/lighting/flashlight.gd" id="3_201dg"]
 [ext_resource type="Texture2D" uid="uid://cvffw0qauk3gu" path="res://assets/art/player/player_ship_frame.png" id="3_lpqif"]
 [ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component/health_component.tscn" id="4_health"]
 [ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component/speed_component.tscn" id="5_speed"]
-[ext_resource type="PackedScene" uid="uid://weapon_manager_uid" path="res://components/weapon_manager/weapon_manager.tscn" id="6_weapon"]
-[ext_resource type="Resource" path="res://resources/config/weapons/basic_gun.tres" id="7_basic_gun"]
+[ext_resource type="PackedScene" path="res://components/weapon_manager/weapon_manager.tscn" id="6_weapon"]
+[ext_resource type="Texture2D" uid="uid://ctj01b5tt5qtv" path="res://assets/art/lights/light.webp" id="8_3soja"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ship"]
 radius = 12.0
@@ -31,6 +33,15 @@ collision_layer = 4
 collision_mask = 521
 motion_mode = 1
 script = ExtResource("1_script")
+
+[node name="Flashlight" type="PointLight2D" parent="."]
+position = Vector2(0, -33)
+rotation = -1.5707964
+scale = Vector2(1.5987839, 1.5892034)
+texture = ExtResource("2_us2pq")
+texture_scale = 0.1
+script = ExtResource("3_201dg")
+metadata/_custom_type_script = "uid://d4it5a783i6g7"
 
 [node name="RightLaser" parent="." instance=ExtResource("1_laser")]
 position = Vector2(6, 0)
@@ -80,6 +91,10 @@ collision_mask = 256
 shape = SubResource("CircleShape2D_pickup")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_interval = 0.0
-delta_interval = 0.0
 replication_config = SubResource("SceneReplicationConfig_1")
+
+[node name="AmbientGlow" type="PointLight2D" parent="."]
+color = Color(0.9, 0.9, 1, 1)
+energy = 0.6
+texture = ExtResource("8_3soja")
+texture_scale = 1.2

@@ -80,6 +80,7 @@ interact={
 
 [layer_names]
 
+2d_render/layer_1="wall"
 2d_physics/layer_1="Enemy"
 2d_physics/layer_2="Trawler"
 2d_physics/layer_3="Player"

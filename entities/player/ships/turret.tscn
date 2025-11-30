@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://ccioahkom5fb3"]
+[gd_scene load_steps=7 format=3 uid="uid://ccioahkom5fb3"]
 
 [ext_resource type="Script" uid="uid://b138wmwjx6ccr" path="res://entities/player/ships/turret.gd" id="1_3pd2n"]
 [ext_resource type="PackedScene" uid="uid://bjsas1kty8730" path="res://entities/projectiles/bullet/bullet.tscn" id="2_4kx2t"]
 [ext_resource type="Texture2D" uid="uid://y581rn2373b1" path="res://assets/art/player/turret.png" id="2_dffkc"]
+[ext_resource type="Texture2D" uid="uid://b2ihvqn00raa6" path="res://assets/art/lights/flashlight.png" id="4_0l6ug"]
+[ext_resource type="Script" uid="uid://d4it5a783i6g7" path="res://components/lighting/flashlight.gd" id="5_h5beb"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_4kx2t"]
 radius = 8.0
@@ -23,3 +25,9 @@ texture = ExtResource("2_dffkc")
 [node name="Muzzle" type="Marker2D" parent="."]
 position = Vector2(8, 0)
 gizmo_extents = 2.0
+
+[node name="Flashlight" type="PointLight2D" parent="."]
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_0l6ug")
+script = ExtResource("5_h5beb")
+metadata/_custom_type_script = "uid://d4it5a783i6g7"

@@ -18,6 +18,9 @@ script = ExtResource("3_script")
 position = Vector2(74, -44)
 
 
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.15, 0.15, 0.2, 1)
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="GameHUD" parent="CanvasLayer" instance=ExtResource("7_hud")]

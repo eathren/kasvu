@@ -1,9 +1,10 @@
-[gd_scene load_steps=14 format=3 uid="uid://dwjxh6hrypua3"]
+[gd_scene load_steps=18 format=3 uid="uid://dwjxh6hrypua3"]
 
 [ext_resource type="Script" uid="uid://b31epxhbt6duc" path="res://entities/vehicles/trawler/trawler.gd" id="1_byw1e"]
 [ext_resource type="PackedScene" uid="uid://bqe8adk2boluh" path="res://systems/combat/laser.tscn" id="1_laser"]
 [ext_resource type="Texture2D" uid="uid://d1x04najel8kl" path="res://assets/art/player/trawler.png" id="3_t1h18"]
 [ext_resource type="PackedScene" uid="uid://ccioahkom5fb3" path="res://entities/player/ships/turret.tscn" id="5_t1h18"]
+[ext_resource type="Texture2D" uid="uid://ctj01b5tt5qtv" path="res://assets/art/lights/light.webp" id="7_08py4"]
 [ext_resource type="PackedScene" uid="uid://ov1wf3squcqg" path="res://entities/vehicles/trawler/ladder_dock.tscn" id="8_fg2qg"]
 [ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component/health_component.tscn" id="9_health"]
 [ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component/speed_component.tscn" id="10_speed"]
@@ -37,6 +38,12 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath(".:velocity")
 properties/2/spawn = true
 properties/2/replication_mode = 1
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_p3rct"]
+polygon = PackedVector2Array(-47, -144, 47, -144, 47, 145, -48, 145)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_08py4"]
+polygon = PackedVector2Array(-33, 110, 33, 110, 33, -129, -32, -129)
 
 [node name="Trawler" type="CharacterBody2D"]
 collision_layer = 2
@@ -145,6 +152,29 @@ position = Vector2(24, 28)
 [node name="LadderDock4" parent="InteriorRoot" instance=ExtResource("8_fg2qg")]
 position = Vector2(24, 86)
 
+[node name="InteriorLight1" type="PointLight2D" parent="InteriorRoot"]
+position = Vector2(0, -60)
+color = Color(1, 0.85, 0.6, 1)
+energy = 0.5
+blend_mode = 2
+texture = ExtResource("7_08py4")
+texture_scale = 2.5
+
+[node name="InteriorLight2" type="PointLight2D" parent="InteriorRoot"]
+color = Color(1, 0.85, 0.6, 1)
+energy = 0.5
+blend_mode = 2
+texture = ExtResource("7_08py4")
+texture_scale = 2.5
+
+[node name="InteriorLight3" type="PointLight2D" parent="InteriorRoot"]
+position = Vector2(0, 60)
+color = Color(1, 0.85, 0.6, 1)
+energy = 0.5
+blend_mode = 2
+texture = ExtResource("7_08py4")
+texture_scale = 2.5
+
 [node name="FrontLaser" parent="." instance=ExtResource("1_laser")]
 position = Vector2(0, -145)
 max_range = 20.0
@@ -153,25 +183,87 @@ color = Color(1, 0.65, 0, 1)
 damage_per_second = 10.0
 direction = Vector2(0, -1)
 
+[node name="FrontFloodlight" type="PointLight2D" parent="."]
+position = Vector2(0, -145)
+color = Color(1, 0.9, 0.7, 1)
+energy = 2.5
+range_z_min = -100
+range_z_max = 100
+shadow_enabled = true
+shadow_filter = 1
+texture = ExtResource("7_08py4")
+texture_scale = 5.0
+
 [node name="ShipDock1" parent="." instance=ExtResource("11_ship_dock")]
 position = Vector2(-50, 28)
+
+[node name="TurretLight1" type="PointLight2D" parent="ShipDock1"]
+position = Vector2(-20, 0)
+color = Color(0.2, 0.8, 1, 1)
+energy = 1.5
+texture = ExtResource("7_08py4")
+texture_scale = 3.0
+shadow_enabled = true
+shadow_filter = 1
+shadow_item_cull_mask = 1
 
 [node name="ShipDock2" parent="." instance=ExtResource("11_ship_dock")]
 position = Vector2(-28, 133)
 dock_position = 2
 home_ship_id = 1
 
+[node name="TurretLight2" type="PointLight2D" parent="ShipDock2"]
+position = Vector2(-20, 0)
+color = Color(0.2, 0.8, 1, 1)
+energy = 1.5
+texture = ExtResource("7_08py4")
+texture_scale = 3.0
+shadow_enabled = true
+shadow_filter = 1
+shadow_item_cull_mask = 1
+
 [node name="ShipDock3" parent="." instance=ExtResource("11_ship_dock")]
 position = Vector2(50, 28)
 dock_position = 1
 home_ship_id = 2
+
+[node name="TurretLight3" type="PointLight2D" parent="ShipDock3"]
+position = Vector2(0, -7)
+color = Color(0.2, 0.8, 1, 1)
+energy = 0.8
+texture = ExtResource("7_08py4")
+texture_scale = 1.5
 
 [node name="ShipDock4" parent="." instance=ExtResource("11_ship_dock")]
 position = Vector2(28, 132)
 dock_position = 3
 home_ship_id = 3
 
+[node name="TurretLight4" type="PointLight2D" parent="ShipDock4"]
+position = Vector2(20, 0)
+color = Color(0.2, 0.8, 1, 1)
+energy = 1.5
+texture = ExtResource("7_08py4")
+texture_scale = 3.0
+shadow_enabled = true
+shadow_filter = 1
+shadow_item_cull_mask = 1
+
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_interval = 0.05
-delta_interval = 0.0
 replication_config = SubResource("SceneReplicationConfig_trawler")
+
+[node name="EngineGlow" type="PointLight2D" parent="."]
+visible = false
+position = Vector2(0, 145)
+color = Color(0.3, 0.6, 1, 1)
+energy = 1.2
+texture = ExtResource("7_08py4")
+texture_scale = 2.0
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_p3rct")
+
+[node name="LightOccluder2D2" type="LightOccluder2D" parent="."]
+position = Vector2(0, 2)
+occluder = SubResource("OccluderPolygon2D_08py4")
