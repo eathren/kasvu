@@ -1,7 +1,9 @@
-[gd_scene load_steps=20 format=3 uid="uid://yenc6seu8kjb"]
+[gd_scene load_steps=22 format=3 uid="uid://yenc6seu8kjb"]
 
 [ext_resource type="Script" uid="uid://2c74xonkjpjq" path="res://entities/vehicles/trawler/drill.gd" id="1_l3xh6"]
 [ext_resource type="Texture2D" uid="uid://ca2ye4262iv2e" path="res://assets/art/player/trawler/drill.png" id="2_grt6w"]
+[ext_resource type="AudioStream" uid="uid://cukya17180ck" path="res://assets/audio/earth_rumble.mp3" id="3_o8yh1"]
+[ext_resource type="AudioStream" uid="uid://5v3qn0wya3um" path="res://assets/audio/scraping.mp3" id="4_giom4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_o8yh1"]
 atlas = ExtResource("2_grt6w")
@@ -138,3 +140,14 @@ replication_config = SubResource("SceneReplicationConfig_l3xh6")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -1.5)
 shape = SubResource("RectangleShape2D_l3xh6")
+
+[node name="DrillSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_o8yh1")
+max_distance = 742.0
+attenuation = 0.7845843
+
+[node name="DiggingSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_giom4")
+volume_db = 5.0
+max_distance = 600.0
+attenuation = 0.8705506

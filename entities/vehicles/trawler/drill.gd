@@ -7,8 +7,11 @@ extends Area2D
 
 var is_active: bool = false
 var trawler: Node = null
+var is_digging: bool = false  # Track if actively hitting tiles
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var drill_sound: AudioStreamPlayer2D = $DrillSound
+@onready var digging_sound: AudioStreamPlayer2D = $DiggingSound
 
 func _ready() -> void:
 	# Get parent Trawler/Borer
@@ -36,10 +39,12 @@ func _on_movement_state_changed(new_state) -> void:
 	
 	if was_active != is_active:
 		_update_animation()
+		_update_audio()
 
 func _on_drill_toggled(enabled: bool) -> void:
 	is_active = enabled
 	_update_animation()
+	_update_audio()
 
 func _update_animation() -> void:
 	if not animated_sprite:
@@ -50,6 +55,14 @@ func _update_animation() -> void:
 	else:
 		animated_sprite.stop()
 		animated_sprite.frame = 0
+
+func _update_audio() -> void:
+	# Drill sound plays when drill is active (spinning)
+	if drill_sound:
+		if is_active and not drill_sound.playing:
+			drill_sound.play()
+		elif not is_active and drill_sound.playing:
+			drill_sound.stop()
 
 func _physics_process(delta: float) -> void:
 	if not is_active:
@@ -114,3 +127,13 @@ func _damage_overlapping_tiles(damage: float) -> void:
 	
 	if tiles_damaged > 0:
 		print("Drill: Damaged ", tiles_damaged, " tiles with ", damage, " damage each")
+		
+		# Play digging sound when actively damaging tiles
+		##if digging_sound and not digging_sound.playing:
+			##digging_sound.play()
+		#is_digging = true
+	#else:
+		## Stop digging sound when not hitting tiles
+		#if digging_sound and digging_sound.playing:
+			#digging_sound.stop()
+		#is_digging = false
