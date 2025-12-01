@@ -3,6 +3,7 @@ extends Node2D
 ## Level_Mine - Contains the mine level with walls, trawler, and enemies
 ## Uses MineGenerator to build the level data, then applies it to TileMaps
 
+@onready var ground: TileMapLayer = $WorldRoot/Floor
 @onready var wall: TileMapLayer = $WorldRoot/Wall
 @onready var trawler: CharacterBody2D = $Trawler
 @onready var enemy_root: Node2D = $WorldRoot/EnemyRoot
@@ -199,20 +200,69 @@ func _apply_tiles(level_data: Dictionary) -> void:
 	if wall == null:
 		push_error("Level_Mine: Wall TileMapLayer not found")
 		return
+	if ground == null:
+		push_error("Level_Mine: Ground TileMapLayer not found")
+		return
 	
-	# Get wall generation parameters from wall script
-	var tile_source_id: int = 5  # Default
-	var wall_atlas_coord: Vector2i = Vector2i(1, 1)  # Default
+	# Get tile coordinates from wall script
+	var tile_source_id: int = wall.tile_source_id
+	var ground_coord: Vector2i = wall.ground_coord
+	var wall_center_coord: Vector2i = wall.wall_center_coord
+	var wall_edge_coords: Array = wall.wall_edge_coords
+	var wall_face_coords: Array = wall.wall_face_coords
 	
-	if "tile_source_id" in wall:
-		tile_source_id = wall.get("tile_source_id")
-	if "wall_atlas_coord" in wall:
-		wall_atlas_coord = wall.get("wall_atlas_coord")
+	print("Level_Mine: Using tile_source_id=", tile_source_id)
+	print("Level_Mine: ground_coord=", ground_coord)
+	print("Level_Mine: wall_center_coord=", wall_center_coord)
+	print("Level_Mine: wall_edge_coords=", wall_edge_coords)
+	print("Level_Mine: wall_face_coords=", wall_face_coords)
 	
-	# Apply all wall cells - no yields, just do it all at once
+	# Get wall cells from level data
 	var wall_cells: Array = level_data.get("wall_cells", [])
 	
+	# Build a set for O(1) neighbor lookups
+	var wall_set := {}
 	for cell in wall_cells:
-		wall.set_cell(cell, tile_source_id, wall_atlas_coord)
+		wall_set[cell] = true
+	
+	# Calculate map bounds from wall cells
+	var min_x := 999999
+	var max_x := -999999
+	var min_y := 999999
+	var max_y := -999999
+	for cell in wall_cells:
+		min_x = mini(min_x, cell.x)
+		max_x = maxi(max_x, cell.x)
+		min_y = mini(min_y, cell.y)
+		max_y = maxi(max_y, cell.y)
+	
+	# Fill entire map area with floor tiles
+	print("Level_Mine: Filling floor from (", min_x, ",", min_y, ") to (", max_x, ",", max_y, ")")
+	for y in range(min_y, max_y + 1):
+		for x in range(min_x, max_x + 1):
+			var cell := Vector2i(x, y)
+			ground.set_cell(cell, tile_source_id, ground_coord)
+	
+	# Place wall tiles on Wall layer based on neighbors
+	for cell in wall_cells:
+		var has_neighbor_above = wall_set.has(cell + Vector2i(0, -1))
+		var has_neighbor_below = wall_set.has(cell + Vector2i(0, 1))
+		
+		if not has_neighbor_below:
+			# Bottom edge - use wall face (exposed from bottom)
+			var variant = randi() % wall_face_coords.size()
+			wall.set_cell(cell, tile_source_id, wall_face_coords[variant])
+		elif not has_neighbor_above:
+			# Top edge - use edge lip
+			var variant = randi() % wall_edge_coords.size()
+			wall.set_cell(cell, tile_source_id, wall_edge_coords[variant])
+		else:
+			# Interior tile - use center
+			wall.set_cell(cell, tile_source_id, wall_center_coord)
+	
+	# Setup map boundaries
+	var boundaries = $WorldRoot/MapBoundaries
+	if boundaries and boundaries.has_method("setup_boundaries"):
+		boundaries.setup_boundaries(min_x, max_x, min_y, max_y)
 	
 	print("Level_Mine: Applied %d tiles to TileMap" % wall_cells.size())

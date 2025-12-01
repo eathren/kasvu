@@ -40,8 +40,9 @@ func start_level(level_num: int = 1, trawler_pos: Vector2 = Vector2.ZERO) -> voi
 		push_error("LevelManager: No wall TileMapLayer found in group 'wall'")
 		return
 	
-	# Generate the level
-	_generate_level()
+	
+	# Level generation is now handled by level_mine.gd
+	# This manager just tracks level state and progress
 	
 	level_generated.emit()
 

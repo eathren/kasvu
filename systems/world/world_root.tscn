@@ -1,8 +1,38 @@
-[gd_scene load_steps=7 format=3 uid="uid://bmqm3l87s438b"]
+[gd_scene load_steps=9 format=3 uid="uid://bmqm3l87s438b"]
 
 [ext_resource type="Texture2D" uid="uid://cbykw6r7yyyou" path="res://assets/art/tilesets/ground_tileset.png" id="1_jv1nx"]
+[ext_resource type="Texture2D" uid="uid://nc02hyugxx6h" path="res://assets/art/tilesets/tileset.png" id="1_vxk2j"]
 [ext_resource type="Texture2D" uid="uid://dl882rsgfv2v4" path="res://assets/art/tilesets/wall_tileset.png" id="2_toecm"]
 [ext_resource type="Script" uid="uid://bxjfrxgmt1sig" path="res://systems/world/wall.gd" id="5_oew3x"]
+[ext_resource type="Script" path="res://systems/world/map_boundaries.gd" id="6_boundaries"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tiljq"]
+texture = ExtResource("1_vxk2j")
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:1/0 = 0
+1:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:1/0 = 0
+2:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:2/0 = 0
+1:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:2/0 = 0
+2:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:3/0 = 0
+1:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:3/0 = 0
+2:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:5/0 = 0
+3:1/0 = 0
+3:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:2/0 = 0
+3:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:3/0 = 0
+3:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_w4kyo"]
 texture = ExtResource("1_jv1nx")
@@ -22,6 +52,7 @@ physics_layer_0/collision_layer = 8
 physics_layer_0/collision_mask = 2071
 sources/2 = SubResource("TileSetAtlasSource_w4kyo")
 sources/5 = SubResource("TileSetAtlasSource_toecm")
+sources/0 = SubResource("TileSetAtlasSource_tiljq")
 
 [node name="WorldRoot" type="Node2D"]
 
@@ -32,3 +63,34 @@ script = ExtResource("5_oew3x")
 [node name="EnemyRoot" type="Node2D" parent="."]
 
 [node name="FissureRoot" type="Node2D" parent="."]
+
+[node name="Floor" type="TileMapLayer" parent="."]
+z_index = -1
+tile_set = SubResource("TileSet_nml2g")
+
+[node name="MapBoundaries" type="Node2D" parent="."]
+script = ExtResource("6_boundaries")
+
+[node name="TopBoundary" type="StaticBody2D" parent="MapBoundaries"]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MapBoundaries/TopBoundary"]
+
+[node name="BottomBoundary" type="StaticBody2D" parent="MapBoundaries"]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MapBoundaries/BottomBoundary"]
+
+[node name="LeftBoundary" type="StaticBody2D" parent="MapBoundaries"]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MapBoundaries/LeftBoundary"]
+
+[node name="RightBoundary" type="StaticBody2D" parent="MapBoundaries"]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MapBoundaries/RightBoundary"]

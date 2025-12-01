@@ -114,11 +114,8 @@ func _apply_damage(hit_point: Vector2, delta: float) -> void:
 	var is_vertical = abs(direction.y) > abs(direction.x)
 	var depth := 3  # Delete 3 rows/columns deep to penetrate through walls
 	
-	# Get wall tile parameters
-	var wall_atlas_coord := Vector2i(1, 1)  # Default
-	var wall_source_id := 5  # Default
-	if "wall_atlas_coord" in wall:
-		wall_atlas_coord = wall.get("wall_atlas_coord")
+	# Get wall tile source ID from wall script
+	var wall_source_id := 0  # Default
 	if "tile_source_id" in wall:
 		wall_source_id = wall.get("tile_source_id")
 	
@@ -129,14 +126,14 @@ func _apply_damage(hit_point: Vector2, delta: float) -> void:
 		for y_offset in range(depth):
 			for x in range(center_cell.x - half_width_tiles, center_cell.x + half_width_tiles + 1):
 				var cell := Vector2i(x, center_cell.y + (y_offset * y_dir))
-				_erase_wall_cell(wall, cell, wall_source_id, wall_atlas_coord)
+				_erase_wall_cell(wall, cell, wall_source_id)
 	else:
 		# Horizontal laser: delete vertically wide, horizontally deep
 		var x_dir := 1 if direction.x > 0 else -1
 		for x_offset in range(depth):
 			for y in range(center_cell.y - half_width_tiles, center_cell.y + half_width_tiles + 1):
 				var cell := Vector2i(center_cell.x + (x_offset * x_dir), y)
-				_erase_wall_cell(wall, cell, wall_source_id, wall_atlas_coord)
+				_erase_wall_cell(wall, cell, wall_source_id)
 	
 	# Reset mining timer after deleting
 	_mining_timer = 0.0
@@ -145,21 +142,21 @@ func _apply_damage(hit_point: Vector2, delta: float) -> void:
 	if raycast:
 		raycast.force_raycast_update()
 
-func _erase_wall_cell(wall: TileMapLayer, cell: Vector2i, wall_source_id: int, wall_atlas_coord: Vector2i) -> void:
+func _erase_wall_cell(wall: TileMapLayer, cell: Vector2i, wall_source_id: int) -> void:
 	"""Helper to erase a single wall cell if it's a wall tile"""
-	if wall.get_cell_source_id(cell) != -1:
-		var atlas_coord := wall.get_cell_atlas_coords(cell)
-		var source_id := wall.get_cell_source_id(cell)
+	var source_id := wall.get_cell_source_id(cell)
+	if source_id == -1:
+		return  # Empty cell
+	
+	# Only erase tiles from the wall source
+	if source_id == wall_source_id:
+		wall.erase_cell(cell)
 		
-		# Only erase wall tiles, not ground
-		if source_id == wall_source_id and atlas_coord == wall_atlas_coord:
-			wall.erase_cell(cell)
-			
-			# Sync to clients if in multiplayer (only host deletes tiles)
-			if multiplayer.is_server():
-				var level := get_tree().current_scene
-				if level and level.has_method("sync_tile_deletion"):
-					level.sync_tile_deletion(cell)
+		# Sync to clients if in multiplayer (only host deletes tiles)
+		if multiplayer.is_server():
+			var level := get_tree().current_scene
+			if level and level.has_method("sync_tile_deletion"):
+				level.sync_tile_deletion(cell)
 
 func set_is_casting(cast: bool) -> void:
 	is_casting = cast
