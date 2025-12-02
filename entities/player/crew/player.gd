@@ -35,6 +35,10 @@ func _physics_process(delta: float) -> void:
 	if not is_active:
 		return
 	
+	# Only process input for local authority
+	if not is_multiplayer_authority():
+		return
+	
 	var input_dir := Vector2.ZERO
 
 	# Use your own input actions, not ui_left/right/up/down

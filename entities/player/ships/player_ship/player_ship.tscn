@@ -2,14 +2,13 @@
 
 [ext_resource type="PackedScene" uid="uid://bqe8adk2boluh" path="res://systems/combat/laser.tscn" id="1_laser"]
 [ext_resource type="Script" uid="uid://cdwve1ivpvgr2" path="res://entities/player/ships/player_ship/player_ship.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://btyw6bsgsr1vg" path="res://assets/art/player/player.png" id="2_1vmog"]
-[ext_resource type="Texture2D" uid="uid://cvffw0qauk3gu" path="res://assets/art/player/player_ship_frame.png" id="3_lpqif"]
+[ext_resource type="Texture2D" uid="uid://cnubtx36mai4h" path="res://assets/art/player/crew/paladin-mech.png" id="3_pm10k"]
 [ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component/health_component.tscn" id="4_health"]
 [ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component/speed_component.tscn" id="5_speed"]
 [ext_resource type="PackedScene" path="res://components/weapon_manager/weapon_manager.tscn" id="6_weapon"]
 [ext_resource type="Texture2D" uid="uid://ctj01b5tt5qtv" path="res://assets/art/lights/light.webp" id="8_3soja"]
 [ext_resource type="PackedScene" uid="uid://cktow4fougwxd" path="res://components/lighting/flashlight.tscn" id="9_pm10k"]
-[ext_resource type="Script" uid="uid://b5q8q8q8q8q8q" path="res://entities/player/player_controller.gd" id="10_controller"]
+[ext_resource type="Script" uid="uid://cq6gi25hkhyv3" path="res://entities/player/player_controller.gd" id="10_controller"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ship"]
 radius = 12.0
@@ -34,38 +33,27 @@ collision_mask = 521
 motion_mode = 1
 script = ExtResource("1_script")
 
-[node name="RightLaser" parent="." instance=ExtResource("1_laser")]
-position = Vector2(6, 0)
-max_range = 200.0
-width = 5.0
-color = Color(0.4, 0.9, 1, 1)
-damage_per_second = 15.0
-direction = Vector2(0, -1)
-
-[node name="MuzzleRight" type="Marker2D" parent="."]
-position = Vector2(10, -10)
-
 [node name="LeftLaser" parent="." instance=ExtResource("1_laser")]
 position = Vector2(-6, 0)
-max_range = 200.0
-width = 5.0
+max_range = 80.0
+width = 3.0
 color = Color(0.4, 0.9, 1, 1)
 damage_per_second = 15.0
 direction = Vector2(0, -1)
 
-[node name="MuzzleLeft" type="Marker2D" parent="."]
-position = Vector2(-10, -10)
+[node name="RightLaser" parent="." instance=ExtResource("1_laser")]
+position = Vector2(6, 0)
+max_range = 80.0
+width = 3.0
+color = Color(0.4, 0.9, 1, 1)
+damage_per_second = 15.0
+direction = Vector2(0, -1)
 
-[node name="PlayerSprite" type="Sprite2D" parent="."]
-texture = ExtResource("2_1vmog")
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("3_pm10k")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_ship")
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
-modulate = Color(0.5, 0.8, 1, 1)
-scale = Vector2(2, 2)
-texture = ExtResource("3_lpqif")
 
 [node name="HealthComponent" parent="." instance=ExtResource("4_health")]
 
@@ -73,6 +61,9 @@ texture = ExtResource("3_lpqif")
 base_speed = 150.0
 
 [node name="WeaponManager" parent="." instance=ExtResource("6_weapon")]
+
+[node name="WeaponHand" type="Node2D" parent="."]
+position = Vector2(8, 0)
 
 [node name="PickupArea" type="Area2D" parent="."]
 collision_layer = 0
@@ -85,6 +76,7 @@ shape = SubResource("CircleShape2D_pickup")
 replication_config = SubResource("SceneReplicationConfig_1")
 
 [node name="AmbientGlow" type="PointLight2D" parent="."]
+position = Vector2(0, 3)
 color = Color(0.9, 0.9, 1, 1)
 energy = 0.6
 texture = ExtResource("8_3soja")
@@ -92,14 +84,9 @@ texture_scale = 1.2
 
 [node name="Flashlight" parent="." instance=ExtResource("9_pm10k")]
 position = Vector2(0, -161)
-color = Color(1, 0.96, 0.88, 1)
-energy = 1.2
-shadow_enabled = true
-shadow_filter = 1
-texture_scale = 0.625
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(1.5, 1.5)
+zoom = Vector2(5, 5)
 
 [node name="PlayerController" type="Node" parent="."]
 script = ExtResource("10_controller")

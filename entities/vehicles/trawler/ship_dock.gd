@@ -25,23 +25,14 @@ func _ready() -> void:
 		var marker = Marker2D.new()
 		marker.name = "DockMarker"
 		add_child(marker)
-	
-	# Spawn initial ship if configured
-	if home_ship_id > 0:
-		# TODO: Load specific ship based on ID? For now just use default player ship
-		var ship_scene = preload("res://entities/player/ships/player_ship/player_ship.tscn")
-		var ship = get_or_spawn_ship(ship_scene)
-		if ship:
-			receive_ship(ship)
 
-func get_or_spawn_ship(ship_scene: PackedScene) -> Node2D:
-	"""Get the docked ship or spawn a new one"""
-	if docked_ship and is_instance_valid(docked_ship):
-		docked_ship.visible = true
-		return docked_ship
-	
+func spawn_ship(ship_scene: PackedScene) -> Node2D:
 	if not ship_scene:
 		push_error("ShipDock: No ship scene provided")
+		return null
+	
+	if docked_ship and is_instance_valid(docked_ship):
+		push_error("ShipDock: Dock already occupied")
 		return null
 	
 	var ship := ship_scene.instantiate()

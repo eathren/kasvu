@@ -17,6 +17,10 @@ var active_modifiers: Array[ModifierData] = []
 var active_synergies: Array[SynergyData] = []
 
 func _process(delta: float) -> void:
+	# Only fire weapons if we have authority (this is the local player's ship)
+	if owner_ship and not owner_ship.is_multiplayer_authority():
+		return
+	
 	# Update all weapon cooldowns
 	for weapon in active_weapons:
 		weapon.update_cooldown(delta)

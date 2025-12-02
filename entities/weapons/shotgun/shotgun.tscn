@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://cp3aoekd7sjt7"]
+
+[ext_resource type="Script" uid="uid://bjmivsmcfd771" path="res://entities/weapons/shotgun/shotgun.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://ds6df0mnhn0xu" path="res://assets/art/player/weapons/shotgun.png" id="2_ti805"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/gameplay/shot.wav" id="3_gunshot"]
+
+[node name="Shotgun" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.6, 0.4, 0.2, 1)
+texture = ExtResource("2_ti805")
+offset = Vector2(8, 0)
+region_enabled = true
+region_rect = Rect2(0, 0, 16, 16)
+
+[node name="Muzzle" type="Marker2D" parent="."]
+position = Vector2(16, 0)
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_gunshot")
+volume_db = -5.0

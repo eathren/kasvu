@@ -71,78 +71,88 @@ func _process(delta: float) -> void:
 		_spawn_enemy()
 
 func _spawn_player_controllers() -> void:
-	"""Spawn a PlayerController for each connected player"""
-	var net_manager = get_node_or_null("/root/NetworkManager")
-	if not net_manager or not net_manager.is_multiplayer():
-		# Singleplayer - spawn one controller for local player
-		_spawn_player_controller(1)
+	if not multiplayer.is_server():
 		return
 	
-	# Multiplayer - spawn controller for each peer
+	var net_manager = get_node_or_null("/root/NetworkManager")
+	if not net_manager:
+		push_error("Level_Mine: NetworkManager not found")
+		return
+	
 	for peer_id in net_manager.players.keys():
 		_spawn_player_controller(peer_id)
 
 func _spawn_player_controller(peer_id: int) -> void:
-	"""Spawn a PlayerController for a specific peer"""
+	if not multiplayer.is_server():
+		return
+	
 	if _player_controllers.has(peer_id):
 		print("Level_Mine: PlayerController already exists for peer ", peer_id)
 		return
 	
-	# Find an available ShipDock
 	var docks = get_tree().get_nodes_in_group("ship_dock")
 	if docks.is_empty():
 		push_error("Level_Mine: No ShipDocks found for player spawn")
 		return
 	
-	# Assign dock based on peer_id (round-robin)
-	var dock_index = (peer_id - 1) % docks.size()
-	var dock = docks[dock_index]
+	var available_dock: Node2D = null
+	for dock in docks:
+		if dock.has_method("is_occupied") and not dock.is_occupied():
+			available_dock = dock
+			break
 	
-	# Get or spawn ship at dock
-	# Note: ShipDock spawns a ship automatically on ready, but we ensure it's there
-	var ship = dock.docked_ship
-	if not ship:
-		# Force spawn if missing (shouldn't happen with current logic but safe to have)
-		var ship_scene = preload("res://entities/player/ships/player_ship/player_ship.tscn")
-		ship = dock.get_or_spawn_ship(ship_scene)
-		dock.receive_ship(ship)
+	if not available_dock:
+		var dock_index = _player_controllers.size() % docks.size()
+		available_dock = docks[dock_index]
+	
+	var ship_scene = preload("res://entities/player/ships/player_ship/player_ship.tscn")
+	var ship = available_dock.spawn_ship(ship_scene)
 	
 	if not ship:
-		push_error("Level_Mine: Failed to get ship for player spawn")
+		push_error("Level_Mine: Failed to spawn ship for peer ", peer_id)
 		return
-		
-	# Get controller from ship
+	
+	ship.name = "PlayerShip_%d" % peer_id
+	ship.set_multiplayer_authority(peer_id)
+	
 	var controller = ship.get_node_or_null("PlayerController")
-	if not controller:
-		push_error("Level_Mine: Ship missing PlayerController node")
-		return
+	if controller:
+		controller.name = "PlayerController_%d" % peer_id
+		controller.set_multiplayer_authority(peer_id)
+		controller.player_id = peer_id
+		_player_controllers[peer_id] = controller
+		
+		if ship.has_method("set_owner_controller"):
+			ship.set_owner_controller(controller)
 	
-	# Configure controller
-	controller.name = "PlayerController_%d" % peer_id
-	controller.set_multiplayer_authority(peer_id)
-	controller.player_id = peer_id
-	
-	# Store reference
-	_player_controllers[peer_id] = controller
-	
-	# Ensure ship is active and owned by this controller
 	if ship.has_method("set_ship_id"):
 		ship.set_ship_id(peer_id)
 	
-	print("Level_Mine: Configured PlayerController for peer ", peer_id, " at dock ", dock.name)
+	if ship.has_method("activate"):
+		ship.activate()
+	
+	print("Level_Mine: Spawned ship for peer ", peer_id, " at dock ", available_dock.name)
 
 func _on_player_connected(peer_id: int) -> void:
-	"""Called when a new player joins mid-game"""
-	print("Level_Mine: Player ", peer_id, " connected, spawning controller")
+	if not multiplayer.is_server():
+		return
+	
+	print("Level_Mine: Player ", peer_id, " connected, spawning ship")
 	_spawn_player_controller.call_deferred(peer_id)
 
 func _on_player_disconnected(peer_id: int) -> void:
-	"""Called when a player disconnects"""
+	if not multiplayer.is_server():
+		return
+	
 	print("Level_Mine: Player ", peer_id, " disconnected, cleaning up")
 	if _player_controllers.has(peer_id):
 		var controller = _player_controllers[peer_id]
 		if is_instance_valid(controller):
-			controller.queue_free()
+			var ship = controller.get_parent()
+			if ship:
+				ship.queue_free()
+			else:
+				controller.queue_free()
 		_player_controllers.erase(peer_id)
 
 func _spawn_enemy() -> void:

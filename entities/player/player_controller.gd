@@ -24,6 +24,10 @@ func _ready() -> void:
 
 func control_crew() -> void:
 	"""Switch control to crew avatar"""
+	# Only local authority can control
+	if not is_multiplayer_authority():
+		return
+	
 	current_ship = null
 	
 	if crew_avatar:
@@ -39,6 +43,10 @@ func control_crew() -> void:
 
 func control_ship(dock: Node2D) -> void:
 	"""Undock and control a ship from a dock"""
+	# Only local authority can control
+	if not is_multiplayer_authority():
+		return
+	
 	if current_ship:
 		print("PlayerController: Already controlling a ship")
 		return
@@ -91,6 +99,10 @@ func control_ship(dock: Node2D) -> void:
 
 func request_dock(ship: Node2D, dock: Node2D) -> void:
 	"""Ship requests to dock"""
+	# Only local authority can control
+	if not is_multiplayer_authority():
+		return
+	
 	if ship != current_ship:
 		print("PlayerController: Ship is not owned by this controller")
 		return
@@ -103,6 +115,10 @@ func request_dock(ship: Node2D, dock: Node2D) -> void:
 
 func _update_camera() -> void:
 	"""Update camera to follow current control target"""
+	# Only local authority manages the camera
+	if not is_multiplayer_authority():
+		return
+	
 	if not camera:
 		return
 	
@@ -124,6 +140,10 @@ func _update_camera() -> void:
 
 func _control_parent_ship(ship: Node2D) -> void:
 	"""Take control of the parent ship"""
+	# Only local authority can control
+	if not is_multiplayer_authority():
+		return
+	
 	current_ship = ship
 	
 	# Set ship references

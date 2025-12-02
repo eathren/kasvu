@@ -1,49 +1,71 @@
-1. "Bloops and Explosions" (The Juice)
-To make the game feel "premium" and satisfying, every interaction needs exaggerated feedback.
+6. Player progression and upgrades
 
-The Borer is a Physical Object, not a Sprite:
-Screen Shake (Trauma): The Borer should constantly cause minor screen shake when moving/drilling. Big impacts (breaking a hard rock layer, hitting a boss) should jolt the camera hard.
-Weight: When the Borer stops, it shouldn't just stop. It should hiss, vent steam, and "settle" with a heavy metallic clank.
-Debris: Drilling shouldn't just delete tiles. It should spawn physics-based rock chunks that bounce off the Borer and player ships.
-Satisfying Destruction:
-Chain Reactions: Enemies in "Hell" should be volatile. Killing one small "bloater" enemy might explode, pushing other enemies into walls or the Borer's grinder.
-Gibs: When enemies die, leave permanent splatters or shells on the tunnel floor. This creates a visual history of the run ("We fought a war back there").
-2. Team Dynamics (Co-op & Synergy)
-Since you want "Team Based," the friction between the Borer (the objective) and the Escorts (the players) is your golden mechanic.
+Goal: Co-op Isaac / Nuclear Throne style builds where players stay in the same power band without cloning items.
 
-The "Leash" Mechanic:
-Make the Borer the only source of safety.
-Light: The tunnel is pitch black. The Borer has massive floodlights. Escorts have small flashlights. If you fly too far into the dark, corruption builds up fast.
-Ammo/Fuel: Escorts should have small tanks. They must return to dock frequently. This creates a natural "yoyo" rhythm: Sortie -> Unleash Hell -> Panic Retreat -> Dock & Reload.
-Docking as a Power Fantasy:
-Don't make docking passive. When a player docks, they shouldn't just sit there.
-Turret Mode: A docked ship becomes a specialized turret.
-Scout Ship docked = Long-range radar/scanner for the team.
-Gunship docked = Massive flak cannon controlled by that player.
-Miner docked = High-speed resource vacuum.
-This makes "retreating" feel like "powering up the mothership" rather than running away.
-3. The "Hell Tunnel" (Environment as Enemy)
-The tunnel shouldn't just be a hallway; it should be an active antagonist.
+Shared run power curve
 
-The Crush:
-The Borer defines the "safe zone." If the Borer stops, the "Hell Wall" behind you creeps closer.
-Visual Pressure: The edges of the screen (behind the Borer) should look like they are crumbling or being eaten by darkness.
-Environmental Hazards:
-Magma Veins: Drilling certain tiles releases lava that flows and damages anything touching it (friend or foe).
-Gas Pockets: Drilling a gas pocket releases a cloud that explodes if a player shoots inside it.
-4. Progression & "The Run"
-The Shop is the Borer:
-Between waves or zones, players don't go to a menu. They walk around inside the Borer (or use a UI while docked) to weld new plating onto the Borer itself.
-Visual Upgrades: If the team buys "Spiked Armor," show giant spikes welded onto the Borer. If they buy "Overcharged Drill," make the drill glow red hot.
-5. A Specific "Fun" Moment to Prototype
-Try implementing this specific interaction to test the "fun":
+- Use a single shared run progression value: `team_rank` (run level).
+- `team_rank` increases from global events: rooms cleared, waves survived, bosses killed, core hell-resource collected, etc.
+- Enemy stats, spawn intensity, and upgrade tier availability depend on `team_rank`, not per player XP.
 
-The Jam: The Borer hits a "Hardened Obsidian" layer and stalls. The drill sparks and screeches (audio cue).
-The Swarm: Because the Borer stopped, the "Corruption Pressure" spikes. Enemies start pouring from the walls behind the Borer.
-The Solution: Players must undock, fly ahead of the Borer to bomb the Obsidian wall manually, while one player stays docked to use the rear turrets to hold back the swarm.
-The Release: Once the wall breaks, the Borer surges forward with a massive "CRUNCH," crushing any enemies foolish enough to be in front of it.
-Summary Checklist for "Fun"
- Audio: Does the drill sound like it's eating the world?
- Visuals: Do enemies pop like balloons filled with neon slime?
- Co-op: Does the pilot scream at the gunner to "Clear the rear!"?
- Movement: Does the Borer feel unstoppable until it isn't?
+Per player rank, locked to the team
+
+- Track `player_rank[player_id]`.
+- Invariant: `team_rank - 1 <= player_rank[player_id] <= team_rank`.
+- No one can fall more than one tier behind the team.
+- When `team_rank` increases, trigger a "tier up" event where each living player chooses an upgrade and their `player_rank` is set to `team_rank`.
+
+Tiered upgrade draft
+
+- Every time `team_rank` increases, pause combat or use an inter-wave phase.
+- For each player:
+  - Roll 2 to 3 upgrade cards from a pool tagged for that character and tier.
+  - Player picks 1, permanently added to their build.
+- Tiers:
+  - Tier 1: basic stat bumps (damage, hp, speed, ammo, gun handling).
+  - Tier 2: identity shaping perks (build-defining modifiers, new behaviors).
+  - Tier 3+: big spikes, strong synergies, tradeoffs, weird stuff.
+- Power budget per tier should be roughly equal across characters even if the effect is different.
+
+Loot rules that do not wreck pacing
+
+Drop categories:
+
+1. Team pickups
+   - Shared currency, keys, hell-ore, relic shards, etc.
+   - Auto distribute or apply to the whole team immediately.
+   - These mostly feed Borer upgrades and global systems.
+
+2. Choice objects
+   - Chests, altars, shrines, reliquaries.
+   - Spawn 2 to 4 items at once.
+   - Team decides who takes what, everything else disappears on pickup.
+   - Forces quick co-op decisions: "who needs the holy shotgun most right now".
+
+3. Role locked drops (optional)
+   - Some items are tagged for specific classes.
+   - Appears ghosted or cannot be picked up except by the intended class.
+   - Prevents nonsense like the healer hoarding all the heavy weapons.
+
+Rubber banding (under the hood)
+
+- Maintain a simple `power_score[player_id]` that factors in weapon rarity, relic count, key upgrades, etc.
+- When deciding who a chest or relic is "aimed at", bias the rolls toward the lowest `power_score`.
+- Do not expose this. The game just "happens" to slightly favor the weaker player.
+
+Death and respawn rules
+
+- If a player dies and later returns:
+  - Set `player_rank[player_id] = max(team_rank - 1, 1)`.
+  - Auto grant them generic catch-up perks from earlier tiers so they are not useless.
+  - Give them a baseline respectable weapon, not the starter peashooter.
+- Optional penalties for tension:
+  - Lower max hp for the rest of the run.
+  - Fewer rerolls, heals, or revives available to that player.
+
+Implementation order
+
+1. Implement `team_rank` that increases on waves cleared or distance drilled into Hell.
+2. Implement tier up events where each player gets 3 draft options from their character pool.
+3. Enforce the `player_rank` gap rule and respawn catch-up logic.
+4. Only after that, layer in chest logic, role locked drops, and rubber banding.

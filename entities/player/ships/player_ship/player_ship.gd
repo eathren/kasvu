@@ -1,9 +1,7 @@
 extends CharacterBody2D
 
-## Player ship - movement and shooting only
-## Docking is handled by PlayerController
-
-# signal lasers_toggled(is_on: bool)  # Unused - commented out
+## Top-down player character with mouse aim (Enter the Gungeon style)
+## Sprite flips based on look direction, weapons render behind/in front based on aim
 
 @export var ship_stats: ShipStats = preload("res://resources/config/ships/player_ship_base.tres")
 
@@ -26,17 +24,23 @@ const DASH_COOLDOWN: float = 1.0
 # Collision layers for i-frames
 var _original_collision_mask: int = 0
 
+# Look direction
+var look_direction: Vector2 = Vector2.UP
+var last_move_direction: Vector2 = Vector2.UP
+
 var owner_controller: Node = null
 var current_dock: Node2D = null
 
 @onready var left_laser: Laser = $LeftLaser
 @onready var right_laser: Laser = $RightLaser
-@onready var player_sprite: Sprite2D = $PlayerSprite
-@onready var frame_sprite: Sprite2D = $Sprite2D
+@onready var player_sprite: Sprite2D = $Sprite2D
 @onready var weapon_manager: WeaponManager = $WeaponManager
+@onready var weapon_hand: Node2D = $WeaponHand
 
 var lasers_enabled: bool = false
 var starting_weapon := preload("res://resources/config/weapons/basic_gun.tres") as WeaponData
+var current_weapon: Node2D = null
+var is_attacking: bool = false
 
 func _ready() -> void:
 	add_to_group("player_ship")
@@ -51,6 +55,12 @@ func _ready() -> void:
 		# Add starting weapon
 		if starting_weapon:
 			weapon_manager.add_weapon(starting_weapon)
+	
+	# Equip shotgun
+	var shotgun_scene = preload("res://entities/weapons/shotgun/shotgun.tscn")
+	if shotgun_scene and weapon_hand:
+		current_weapon = shotgun_scene.instantiate()
+		weapon_hand.add_child(current_weapon)
 	
 	# Apply stats from ship_stats resource
 	if ship_stats:
@@ -68,32 +78,40 @@ func _ready() -> void:
 		if left_laser:
 			left_laser.color = ship_stats.laser_color
 			left_laser.width = ship_stats.laser_width
-			left_laser.direction = Vector2.UP  # Point forward
-			left_laser.max_range = 30.0  # Short mining range
 		if right_laser:
 			right_laser.color = ship_stats.laser_color
 			right_laser.width = ship_stats.laser_width
-			right_laser.direction = Vector2.UP  # Point forward
-			right_laser.max_range = 30.0  # Short mining range
 
 func _physics_process(delta: float) -> void:
 	if not is_active or not owner_controller:
+		return
+	
+	# Only process input for local authority
+	if not is_multiplayer_authority():
 		return
 	
 	# Handle Dash Cooldown
 	if dash_cooldown_timer > 0.0:
 		dash_cooldown_timer -= delta
 	
+	# Update look direction from mouse or right stick
+	var right_stick_x = Input.get_joy_axis(0, JOY_AXIS_RIGHT_X)
+	var right_stick_y = Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y)
+	var stick_input := Vector2(right_stick_x, right_stick_y)
+	
+	if stick_input.length() > 0.3:  # Deadzone
+		look_direction = stick_input.normalized()
+	else:
+		var mouse_pos := get_global_mouse_position()
+		look_direction = (mouse_pos - global_position).normalized()
+	
+	# Update sprite flip and weapon positioning
+	_update_sprite_and_weapons()
+	
 	# Handle Dash State
 	if is_dashing:
 		dash_timer -= delta
 		velocity = dash_velocity
-		
-		# Rotate towards mouse even while dashing
-		var mouse_pos := get_global_mouse_position()
-		look_at(mouse_pos)
-		rotation += PI / 2.0
-		
 		move_and_slide()
 		
 		if dash_timer <= 0.0:
@@ -101,21 +119,10 @@ func _physics_process(delta: float) -> void:
 		return
 
 	if is_docked:
-		# Turret mode: No movement, but can rotate
 		velocity = Vector2.ZERO
-		
-		# Rotate towards mouse/aim
-		var mouse_pos := get_global_mouse_position()
-		look_at(mouse_pos)
-		rotation += PI / 2.0 # Adjust for sprite orientation
 		return
 	
-	# Twin-Stick Rotation: Always look at mouse
-	var mouse_pos := get_global_mouse_position()
-	look_at(mouse_pos)
-	rotation += PI / 2.0 # Adjust for sprite orientation
-	
-	# Handle movement (WASD)
+	# Handle movement (WASD) - no rotation
 	var input_dir := Vector2.ZERO
 	input_dir.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 	input_dir.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
@@ -123,14 +130,62 @@ func _physics_process(delta: float) -> void:
 	if input_dir != Vector2.ZERO:
 		input_dir = input_dir.normalized()
 		velocity = input_dir * speed
+		last_move_direction = input_dir
 	else:
 		velocity = Vector2.ZERO
 	
 	move_and_slide()
 
+func _update_sprite_and_weapons() -> void:
+	# Flip sprite based on look direction (left/right)
+	if look_direction.x < 0:
+		player_sprite.flip_h = true
+		# Move weapon to left side
+		if weapon_hand:
+			weapon_hand.position.x = -8
+	elif look_direction.x > 0:
+		player_sprite.flip_h = false
+		# Move weapon to right side
+		if weapon_hand:
+			weapon_hand.position.x = 8
+	
+	# Position lasers based on aim direction
+	if left_laser and right_laser:
+		# Update laser direction to match look direction
+		left_laser.direction = look_direction
+		right_laser.direction = look_direction
+		
+		# Calculate perpendicular offset for left/right lasers
+		var perpendicular = Vector2(-look_direction.y, look_direction.x)
+		left_laser.position = perpendicular * -6.0
+		right_laser.position = perpendicular * 6.0
+	
+	# Update weapon aim and position
+	if current_weapon and current_weapon.has_method("update_aim"):
+		current_weapon.update_aim(look_direction)
+	
+	# Weapon and manager render behind player when aiming up/away
+	var target_z = -1 if look_direction.y < -0.3 else 1
+	
+	if weapon_hand:
+		weapon_hand.z_index = target_z
+	
+	if weapon_manager:
+		for child in weapon_manager.get_children():
+			if child is Node2D:
+				child.z_index = target_z
+
 func _input(event: InputEvent) -> void:
 	if not is_active or not owner_controller:
 		return
+	
+	# Only process input for local authority
+	if not is_multiplayer_authority():
+		return
+	
+	# Attack (Left Click or Joystick trigger)
+	if event.is_action_pressed("attack"):
+		_attack()
 	
 	# Try to dock/undock (E key)
 	if event.is_action_pressed("interact"):
@@ -143,8 +198,13 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			_try_dash()
+
+func _attack() -> void:
+	if not current_weapon:
+		return
 	
-	# Note: Weapons auto-fire via WeaponManager, no manual firing needed
+	if current_weapon.has_method("fire"):
+		current_weapon.fire(look_direction, 0)  # 0 = player faction
 
 func try_dock() -> void:
 	"""Request docking if near current dock"""

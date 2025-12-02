@@ -1,11 +1,12 @@
-[gd_scene load_steps=5 format=3 uid="uid://bjsas1kty8730"]
+[gd_scene load_steps=7 format=3 uid="uid://bjsas1kty8730"]
 
 [ext_resource type="Script" uid="uid://dtjrce11a7dyj" path="res://entities/projectiles/bullet/bullet.gd" id="1_3sk38"]
-[ext_resource type="Texture2D" uid="uid://cvho1xiwfoufy" path="res://assets/art/player/bullet.png" id="1_t1kx3"]
+[ext_resource type="Texture2D" uid="uid://mfpduqbfvqwd" path="res://assets/art/bullet-8.png" id="2_5j1a4"]
 [ext_resource type="PackedScene" uid="uid://qowfj0gbi6t4" path="res://components/faction_component/faction_component.tscn" id="3_75jld"]
+[ext_resource type="Texture2D" uid="uid://ctj01b5tt5qtv" path="res://assets/art/lights/light.webp" id="4_xnwc8"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3sk38"]
-size = Vector2(4, 6)
+[sub_resource type="CircleShape2D" id="CircleShape2D_xnwc8"]
+radius = 4.0
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_bullet"]
 properties/0/path = NodePath(".:global_position")
@@ -23,18 +24,19 @@ damage = null
 lifetime = null
 faction = null
 
+[node name="PointLight2D" type="PointLight2D" parent="."]
+texture = ExtResource("4_xnwc8")
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
 rotation = 1.5708
-texture = ExtResource("1_t1kx3")
+texture = ExtResource("2_5j1a4")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 rotation = 1.5708
-shape = SubResource("RectangleShape2D_3sk38")
+shape = SubResource("CircleShape2D_xnwc8")
 
 [node name="FactionComponent" parent="." instance=ExtResource("3_75jld")]
 faction = 0
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_interval = 0.0
-delta_interval = 0.0
 replication_config = SubResource("SceneReplicationConfig_bullet")

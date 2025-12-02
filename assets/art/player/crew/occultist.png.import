@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cvho1xiwfoufy"
-path="res://.godot/imported/bullet.png-30bd43c3bdf9e3ff14a99bf3dee06c59.ctex"
+uid="uid://bbbjbasvns4wa"
+path="res://.godot/imported/occultist.png-37e572f4398fe997d2168ecd4c701a07.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/player/bullet.png"
-dest_files=["res://.godot/imported/bullet.png-30bd43c3bdf9e3ff14a99bf3dee06c59.ctex"]
+source_file="res://assets/art/player/crew/occultist.png"
+dest_files=["res://.godot/imported/occultist.png-37e572f4398fe997d2168ecd4c701a07.ctex"]
 
 [params]
 
