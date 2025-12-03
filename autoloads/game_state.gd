@@ -142,6 +142,9 @@ func _level_up() -> void:
 	# Lockstep scaling: Level n requires 30 * n XP
 	xp_to_next_level = 30 * current_level
 	
+	# Slow down time to 5% speed (95% slowdown)
+	Engine.time_scale = 0.05
+	
 	level_up.emit(current_level)
 	print("GameState: Level up! Now level ", current_level, " (need ", xp_to_next_level, " XP for next level)")
 

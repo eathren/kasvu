@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TechItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/data/tech_item.gd" id="1_tech"]
+
+[resource]
+script = ExtResource("1_tech")
+id = "gilded_barrel_shroud"
+display_name = "Gilded Barrel Shroud"
+description = "While continuously firing for at least 1 second, gain +20% damage and +10% recoil knockback on shots. Buff fades 1 second after you stop firing."
+stack_description = "+10% damage and +5% knockback per stack."
+rarity = 1
+category = 0
+max_stacks = 10

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TechItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/data/tech_item.gd" id="1_tech"]
+
+[resource]
+script = ExtResource("1_tech")
+id = "neon_halo_cartridge"
+display_name = "Neon Halo Cartridge"
+description = "Primary fire gains +10% crit chance. Critical hits fire a chaining holy spark that jumps to 2 nearby enemies for 30% damage each."
+stack_description = "+5% crit and +15% spark damage per stack."
+rarity = 1
+category = 0
+max_stacks = 10
