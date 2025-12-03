@@ -10,6 +10,7 @@ const RoomConstants = preload("res://rooms/room_constants.gd")
 @onready var trawler: CharacterBody2D = $Trawler
 @onready var enemy_root: Node2D = $WorldRoot/EnemyRoot
 @onready var room_root: Node2D = $WorldRoot/RoomRoot
+@onready var pathfinding_grid: PathfindingGrid = $PathfindingGrid
 @export var enemy_scene: PackedScene = preload("res://entities/enemies/imp/imp.tscn")
 @export var crew_scene: PackedScene = preload("res://entities/player/crew/player.tscn")
 @export var spawns_per_second: float = 1.0
@@ -46,6 +47,10 @@ func _ready() -> void:
 	# Setup SpawnManager
 	if SpawnManager != null:
 		SpawnManager.setup(wall)
+	
+	# Setup pathfinding grid
+	if pathfinding_grid:
+		pathfinding_grid.setup(wall)
 	
 	# Load enemy scene if not set
 	if enemy_scene == null:
@@ -203,6 +208,10 @@ func _delete_tile_on_clients(cell: Vector2i) -> void:
 	"""Clients receive and delete a tile"""
 	if wall:
 		wall.erase_cell(cell)
+		
+		# Update pathfinding grid
+		if pathfinding_grid:
+			pathfinding_grid.update_tile(cell, false)  # false = walkable
 
 ## Apply generated tile data to the TileMap
 func _apply_tiles(level_data: Dictionary) -> void:

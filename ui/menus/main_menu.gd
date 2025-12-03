@@ -45,6 +45,12 @@ func _on_load_button_pressed() -> void:
 	_show_panel(load_panel)
 	_populate_save_slots()
 
+func _on_playground_button_pressed() -> void:
+	"""Go to playground scene for testing"""
+	await SceneTransition.fade_in()
+	get_tree().change_scene_to_file("res://dev/playground.tscn")
+	await SceneTransition.fade_out()
+
 func _on_quit_button_pressed() -> void:
 	"""Quit the game"""
 	get_tree().quit()

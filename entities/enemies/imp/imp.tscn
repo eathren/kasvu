@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://dfsbjqd8ea5ga"]
+[gd_scene load_steps=8 format=3 uid="uid://dfsbjqd8ea5ga"]
 
 [ext_resource type="Texture2D" uid="uid://b0ijhwuafskac" path="res://assets/art/enemies/imp.png" id="1_6nf23"]
 [ext_resource type="Script" uid="uid://q617211mied1" path="res://entities/enemies/enemies.gd" id="1_45r1c"]
 [ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component/health_component.tscn" id="3_pfgnl"]
 [ext_resource type="PackedScene" uid="uid://qowfj0gbi6t4" path="res://components/faction_component/faction_component.tscn" id="4_ax5sk"]
 [ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component/speed_component.tscn" id="4_speed"]
+[ext_resource type="PackedScene" path="res://components/pathfinding/pathfinding_component.tscn" id="6_pathfind"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_45r1c"]
 radius = 5.0
@@ -36,6 +37,10 @@ base_speed = 60.0
 
 [node name="FactionComponent" parent="." instance=ExtResource("4_ax5sk")]
 faction = 1
+
+[node name="PathfindingComponent" parent="." instance=ExtResource("6_pathfind")]
+repath_interval = 1.0
+waypoint_distance = 16.0
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_interval = 0.1

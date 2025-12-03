@@ -76,6 +76,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "LOAD GAME"
 
+[node name="PlaygroundButton" type="Button" parent="CenterContainer/MainPanel"]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "PLAYGROUND"
+
 [node name="QuitButton" type="Button" parent="CenterContainer/MainPanel"]
 custom_minimum_size = Vector2(300, 50)
 layout_mode = 2
@@ -190,6 +196,7 @@ text = "BACK"
 [connection signal="pressed" from="CenterContainer/MainPanel/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="CenterContainer/MainPanel/JoinButton" to="." method="_on_join_button_pressed"]
 [connection signal="pressed" from="CenterContainer/MainPanel/LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="pressed" from="CenterContainer/MainPanel/PlaygroundButton" to="." method="_on_playground_button_pressed"]
 [connection signal="pressed" from="CenterContainer/MainPanel/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="CenterContainer/HostPanel/CreateHostButton" to="." method="_on_create_host_button_pressed"]
 [connection signal="pressed" from="CenterContainer/HostPanel/BackButton" to="." method="_on_host_back_button_pressed"]

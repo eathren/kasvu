@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://4kfigrpdnnj3"]
+
+[ext_resource type="Script" uid="uid://bthf74e3b640y" path="res://components/pathfinding/pathfinding_grid.gd" id="1_pathfinding"]
+
+[node name="PathfindingGrid" type="Node"]
+script = ExtResource("1_pathfinding")
+chunk_size = 500
+tile_size = 16
+update_frequency = 0.5
+diagonal_cost_multiplier = 1.414

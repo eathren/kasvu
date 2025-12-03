@@ -1,3 +1,20 @@
-[gd_scene format=3 uid="uid://bv622hh4b2qi"]
+[gd_scene load_steps=4 format=3 uid="uid://bv622hh4b2qi"]
+
+[ext_resource type="Script" uid="uid://bf0fuhql3kkm2" path="res://dev/playground.gd" id="1_playground"]
+[ext_resource type="PackedScene" uid="uid://dtyas3wt03lb1" path="res://rooms/boss/boss_room.tscn" id="2_4epvc"]
+[ext_resource type="PackedScene" uid="uid://dvdwdt6vbluqh" path="res://entities/player/ships/player_ship/player_ship.tscn" id="3_pu2l0"]
 
 [node name="Playground" type="Node2D"]
+script = ExtResource("1_playground")
+
+[node name="BossRoom" parent="." instance=ExtResource("2_4epvc")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(43, 126)
+zoom = Vector2(3, 3)
+enabled = false
+
+[node name="PlayerSpawner" type="Node2D" parent="."]
+
+[node name="PlayerShip" parent="PlayerSpawner" instance=ExtResource("3_pu2l0")]
+position = Vector2(43, 126)

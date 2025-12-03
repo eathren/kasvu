@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://pathfinding_component"]
+
+[ext_resource type="Script" path="res://components/pathfinding/pathfinding_component.gd" id="1_component"]
+
+[node name="PathfindingComponent" type="Node"]
+script = ExtResource("1_component")
+repath_interval = 1.0
+waypoint_distance = 16.0
+use_cached_paths = true

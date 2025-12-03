@@ -1,13 +1,16 @@
-[gd_scene load_steps=5 format=3 uid="uid://b5nc0bk41mlgb"]
+[gd_scene load_steps=6 format=3 uid="uid://b5nc0bk41mlgb"]
 
 [ext_resource type="Script" uid="uid://cojffhixhl5w6" path="res://entities/enemies/boss/beholder.gd" id="1_gywki"]
 [ext_resource type="Texture2D" uid="uid://dqjd7jrk8ww4k" path="res://assets/art/enemies/boss/beholder.png" id="2_rvf2r"]
 [ext_resource type="PackedScene" uid="uid://hx0v5hqvqkmy" path="res://components/health_component/health_component.tscn" id="3_ftxxm"]
+[ext_resource type="PackedScene" uid="uid://qowfj0gbi6t4" path="res://components/faction_component/faction_component.tscn" id="4_faction"]
+[ext_resource type="PackedScene" path="res://components/pathfinding/pathfinding_component.tscn" id="5_pathfind"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_6ke77"]
 radius = 32.06244
 
-[node name="Beholder" type="CharacterBody2D"]
+[node name="Beholder" type="CharacterBody2D" groups=["boss", "enemy"]]
+collision_mask = 28
 script = ExtResource("1_gywki")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -18,3 +21,10 @@ shape = SubResource("CircleShape2D_6ke77")
 
 [node name="HealthComponent" parent="." instance=ExtResource("3_ftxxm")]
 max_health = 1000
+
+[node name="FactionComponent" parent="." instance=ExtResource("4_faction")]
+faction = 1
+
+[node name="PathfindingComponent" parent="." instance=ExtResource("5_pathfind")]
+repath_interval = 0.5
+waypoint_distance = 32.0

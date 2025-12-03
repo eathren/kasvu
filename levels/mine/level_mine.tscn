@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bq8x7k2m3n4p5"]
+[gd_scene load_steps=10 format=3 uid="uid://bq8x7k2m3n4p5"]
 
 [ext_resource type="PackedScene" uid="uid://bmqm3l87s438b" path="res://systems/world/world_root.tscn" id="1_world"]
 [ext_resource type="PackedScene" uid="uid://dwjxh6hrypua3" path="res://entities/vehicles/trawler/trawler.tscn" id="2_trawler"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://entities/player/player_controller.gd" id="6_controller"]
 [ext_resource type="PackedScene" uid="uid://hud_uid_12345" path="res://ui/hud/game_hud.tscn" id="7_hud"]
 [ext_resource type="PackedScene" uid="uid://pause_menu_uid" path="res://ui/menus/pause_menu.tscn" id="8_pause"]
+[ext_resource type="Script" path="res://components/pathfinding/pathfinding_grid.gd" id="9_pathfinding"]
 
 [node name="Level_Mine" type="Node2D"]
 script = ExtResource("3_script")
@@ -15,6 +16,12 @@ script = ExtResource("3_script")
 [node name="WorldRoot" parent="." instance=ExtResource("1_world")]
 
 [node name="RoomRoot" type="Node2D" parent="WorldRoot"]
+
+[node name="PathfindingGrid" type="Node" parent="."]
+script = ExtResource("9_pathfinding")
+chunk_size = 500
+tile_size = 16
+update_frequency = 0.5
 
 [node name="Trawler" parent="." instance=ExtResource("2_trawler")]
 position = Vector2(74, -44)
