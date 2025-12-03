@@ -1,52 +1,67 @@
 # Pathfinding System Usage Guide
 
 ## Overview
-The pathfinding system uses a grid-based A* algorithm that dynamically updates as walls are mined. It maintains a 500x500 tile window around the trawler for efficient pathfinding.
+The pathfinding system uses a grid-based A* algorithm that dynamically updates as walls are mined. It maintains multiple 500x500 tile windows around important targets (trawler and distant player ships) for distributed pathfinding.
 
 ## Architecture
 
-### PathfindingGrid (Scene-level)
+### PathfindingManager (Scene-level)
+- Manages multiple PathfindingGrid instances
+- Creates grids around trawler (always)
+- Creates grids around player ships when 300+ units from trawler
+- Automatically routes pathfinding requests to appropriate grid
+- Updates all grids when tiles are mined
+
+### PathfindingGrid (Internal)
 - Maintains AStarGrid2D with 500x500 tile window
-- Automatically follows the trawler
-- Updates when tiles are mined
+- Follows its assigned target
 - Caches paths for performance
 - Smooths paths using line-of-sight
 
 ### PathfindingComponent (Entity-level)
 - Attach to any enemy/NPC that needs navigation
+- Automatically uses PathfindingManager or falls back to single grid
 - Handles path requests and waypoint following
 - Recalculates paths periodically
 - Emits signals for path events
 
 ## Setup
 
-### 1. Add PathfindingGrid to Level
+### 1. Add PathfindingManager to Level
 Already added to `level_mine.tscn`:
 ```gdscript
-[node name="PathfindingGrid" type="Node" parent="."]
-script = ExtResource("pathfinding_grid.gd")
-chunk_size = 500
-tile_size = 16
+[node name="PathfindingManager" parent="." instance=ExtResource("pathfinding_manager.tscn")]
+grid_chunk_size = 500
+grid_tile_size = 16
 update_frequency = 0.5
+player_grid_distance = 300.0
 ```
 
 ### 2. Initialize in Level Code
 ```gdscript
-@onready var pathfinding_grid: PathfindingGrid = $PathfindingGrid
+@onready var pathfinding_manager: PathfindingManager = $PathfindingManager
+@onready var trawler: CharacterBody2D = $Trawler
 
 func _ready():
-    # Setup after wall tilemap is ready
-    if pathfinding_grid:
-        pathfinding_grid.setup(wall)
+    # Setup with initial center position (prevents grid centered on 0,0)
+    if pathfinding_manager:
+        pathfinding_manager.setup(wall, trawler.global_position)
 ```
 
 ### 3. Update on Tile Changes
 ```gdscript
 func _delete_tile(cell: Vector2i):
     wall.erase_cell(cell)
-    if pathfinding_grid:
-        pathfinding_grid.update_tile(cell, false)  # false = walkable
+    # solid=false means the tile is now walkable
+    if pathfinding_manager:
+        pathfinding_manager.update_tile(cell, false)
 ```
+
+The manager will automatically:
+- Create a grid around the trawler
+- Create grids around player ships when they're 300+ units from trawler
+- Remove grids when players get close to trawler
+- Update all grids when tiles change
 
 ## Using PathfindingComponent
 
@@ -190,8 +205,8 @@ func _physics_process(delta: float):
 ### PathfindingGrid
 
 **Methods:**
-- `setup(tilemap: TileMapLayer)` - Initialize with tilemap
-- `update_tile(tile_pos: Vector2i, is_solid: bool)` - Update single tile
+- `setup(tilemap: TileMapLayer, initial_world_pos: Vector2)` - Initialize with tilemap and center
+- `update_tile(tile_pos: Vector2i, solid: bool)` - Update single tile (solid=true blocks)
 - `find_path(from: Vector2, to: Vector2, use_cache: bool) -> Array[Vector2]` - Get path
 - `is_position_walkable(world_pos: Vector2) -> bool` - Check if walkable
 - `get_grid_info() -> Dictionary` - Get debug info

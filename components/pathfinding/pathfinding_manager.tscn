@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8j3h4k5l6m7n"]
+
+[ext_resource type="Script" path="res://components/pathfinding/pathfinding_manager.gd" id="1_manager"]
+
+[node name="PathfindingManager" type="Node"]
+script = ExtResource("1_manager")
+grid_chunk_size = 500
+grid_tile_size = 16
+update_frequency = 0.5
+player_grid_distance = 300.0

@@ -4,7 +4,3 @@
 
 [node name="PathfindingGrid" type="Node"]
 script = ExtResource("1_pathfinding")
-chunk_size = 500
-tile_size = 16
-update_frequency = 0.5
-diagonal_cost_multiplier = 1.414

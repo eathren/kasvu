@@ -18,6 +18,7 @@ var destination: Vector2 = Vector2.ZERO
 var has_destination: bool = false
 var repath_timer: float = 0.0
 var pathfinding_grid: PathfindingGrid = null
+var pathfinding_manager: PathfindingManager = null
 var owner_entity: Node2D = null
 
 func _ready() -> void:
@@ -25,12 +26,16 @@ func _ready() -> void:
 	if not owner_entity:
 		push_error("PathfindingComponent: Must be child of a Node2D entity")
 	
-	# Find pathfinding grid
+	# Find pathfinding manager or fallback to single grid
 	await get_tree().process_frame
-	pathfinding_grid = get_tree().get_first_node_in_group("pathfinding_grid")
+	pathfinding_manager = get_tree().get_first_node_in_group("pathfinding_manager")
 	
-	if not pathfinding_grid:
-		push_warning("PathfindingComponent: No PathfindingGrid found in scene")
+	if not pathfinding_manager:
+		# Fallback to single grid system
+		pathfinding_grid = get_tree().get_first_node_in_group("pathfinding_grid")
+		
+		if not pathfinding_grid:
+			push_warning("PathfindingComponent: No PathfindingManager or PathfindingGrid found in scene")
 
 func _process(delta: float) -> void:
 	if not has_destination or not owner_entity:
@@ -66,11 +71,19 @@ func clear_destination() -> void:
 
 func _calculate_path() -> void:
 	"""Calculate path from current position to destination"""
-	if not pathfinding_grid or not owner_entity or not has_destination:
+	if not owner_entity or not has_destination:
 		return
 	
 	var start_pos := owner_entity.global_position
-	var new_path := pathfinding_grid.find_path(start_pos, destination, use_cached_paths)
+	var new_path: Array[Vector2] = []
+	
+	# Use manager if available, otherwise use single grid
+	if pathfinding_manager:
+		new_path = pathfinding_manager.find_path(start_pos, destination, use_cached_paths)
+	elif pathfinding_grid:
+		new_path = pathfinding_grid.find_path(start_pos, destination, use_cached_paths)
+	else:
+		return
 	
 	if new_path.is_empty():
 		path_failed.emit()
@@ -137,10 +150,15 @@ func get_remaining_distance() -> float:
 
 func is_destination_reachable() -> bool:
 	"""Check if the current destination is reachable"""
-	if not pathfinding_grid or not owner_entity:
+	if not owner_entity:
 		return false
 	
-	return pathfinding_grid.is_position_walkable(destination)
+	if pathfinding_manager:
+		return pathfinding_manager.is_position_walkable(destination)
+	elif pathfinding_grid:
+		return pathfinding_grid.is_position_walkable(destination)
+	
+	return false
 
 func draw_debug_path(canvas: CanvasItem) -> void:
 	"""Draw the current path for debugging"""

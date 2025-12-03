@@ -9,7 +9,6 @@ signal grid_updated()
 @export var chunk_size: int = 500  # Size of the pathfinding window in tiles
 @export var tile_size: int = 16  # Size of each tile in pixels
 @export var update_frequency: float = 0.5  # How often to shift the window (seconds)
-@export var diagonal_cost_multiplier: float = 1.414  # sqrt(2) for diagonal movement
 
 var astar_grid: AStarGrid2D = null
 var current_center: Vector2i = Vector2i.ZERO  # Center of the grid in world tile coordinates
@@ -26,11 +25,15 @@ func _ready() -> void:
 	add_to_group("pathfinding_grid")
 	_initialize_grid()
 
-func setup(tilemap: TileMapLayer) -> void:
+func setup(tilemap: TileMapLayer, initial_world_pos: Vector2 = Vector2.ZERO) -> void:
 	"""Initialize the pathfinding grid with a tilemap reference"""
 	wall_layer = tilemap
 	if wall_layer:
-		print("PathfindingGrid: Setup with tilemap")
+		# Seed the initial center before first rebuild
+		if initial_world_pos != Vector2.ZERO:
+			var initial_local := wall_layer.to_local(initial_world_pos)
+			current_center = wall_layer.local_to_map(initial_local)
+		print("PathfindingGrid: Setup with tilemap at center %s" % current_center)
 		_rebuild_grid()
 
 func _initialize_grid() -> void:
@@ -38,7 +41,7 @@ func _initialize_grid() -> void:
 	astar_grid = AStarGrid2D.new()
 	astar_grid.size = Vector2i(chunk_size, chunk_size)
 	astar_grid.cell_size = Vector2(tile_size, tile_size)
-	astar_grid.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ALWAYS
+	astar_grid.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
 	astar_grid.default_compute_heuristic = AStarGrid2D.HEURISTIC_OCTILE
 	astar_grid.default_estimate_heuristic = AStarGrid2D.HEURISTIC_OCTILE
 	
@@ -58,24 +61,30 @@ func _process(delta: float) -> void:
 	# Clean old cached paths
 	_clean_path_cache()
 
+func _update_center(world_pos: Vector2) -> void:
+	"""Manually update the grid center to a world position"""
+	if not wall_layer:
+		return
+	
+	var local_pos := wall_layer.to_local(world_pos)
+	var tile_pos := wall_layer.local_to_map(local_pos)
+	
+	# Check if we need to recenter
+	var distance_from_center := tile_pos.distance_to(current_center)
+	var shift_threshold := chunk_size / 4
+	
+	if distance_from_center > shift_threshold:
+		current_center = tile_pos
+		_rebuild_grid()
+
 func _check_window_shift() -> void:
 	"""Check if the trawler has moved far enough to shift the grid window"""
 	var trawler = get_tree().get_first_node_in_group("trawler")
 	if not trawler or not wall_layer:
 		return
 	
-	# Get trawler position in tile coordinates
-	var trawler_world_pos: Vector2 = trawler.global_position
-	var trawler_local := wall_layer.to_local(trawler_world_pos)
-	var trawler_tile := wall_layer.local_to_map(trawler_local)
-	
-	# Check if we need to recenter
-	var distance_from_center := trawler_tile.distance_to(current_center)
-	var shift_threshold := chunk_size / 4  # Shift when trawler moves 25% away from center
-	
-	if distance_from_center > shift_threshold:
-		current_center = trawler_tile
-		_rebuild_grid()
+	# Use the public update method
+	_update_center(trawler.global_position)
 
 func _rebuild_grid() -> void:
 	"""Rebuild the entire pathfinding grid based on current tile state"""
@@ -109,8 +118,8 @@ func _is_tile_solid(tile_pos: Vector2i) -> bool:
 	var source_id := wall_layer.get_cell_source_id(tile_pos)
 	return source_id != -1  # -1 means no tile (walkable)
 
-func update_tile(tile_pos: Vector2i, is_solid: bool) -> void:
-	"""Update a single tile's walkability (called when tile is mined)"""
+func update_tile(tile_pos: Vector2i, solid: bool) -> void:
+	"""Update a single tile's solidity (solid=true blocks movement, solid=false allows movement)"""
 	if not astar_grid:
 		return
 	
@@ -121,7 +130,7 @@ func update_tile(tile_pos: Vector2i, is_solid: bool) -> void:
 	if grid_pos.x < 0 or grid_pos.x >= chunk_size or grid_pos.y < 0 or grid_pos.y >= chunk_size:
 		return  # Outside our current window
 	
-	astar_grid.set_point_solid(grid_pos, is_solid)
+	astar_grid.set_point_solid(grid_pos, solid)
 	astar_grid.update()
 	
 	# Invalidate cached paths that might be affected
@@ -205,8 +214,8 @@ func _smooth_path(path: Array[Vector2]) -> Array[Vector2]:
 	return smoothed
 
 func _has_line_of_sight(from: Vector2, to: Vector2) -> bool:
-	"""Check if there's a clear line between two points"""
-	if not wall_layer:
+	"""Check if there's a clear line between two points using the grid"""
+	if not wall_layer or not astar_grid:
 		return true
 	
 	var direction := (to - from).normalized()
@@ -217,8 +226,10 @@ func _has_line_of_sight(from: Vector2, to: Vector2) -> bool:
 		var check_pos := from + direction * (i * tile_size / 2)
 		var check_local := wall_layer.to_local(check_pos)
 		var check_tile := wall_layer.local_to_map(check_local)
+		var grid_pos := check_tile - grid_offset
 		
-		if _is_tile_solid(check_tile):
+		# Use grid data instead of tilemap directly
+		if _is_in_grid(grid_pos) and astar_grid.is_point_solid(grid_pos):
 			return false
 	
 	return true
