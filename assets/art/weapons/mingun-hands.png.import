@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ds6df0mnhn0xu"
-path="res://.godot/imported/shotgun.png-2ac699ea1cd793d6a30cd65a374be377.ctex"
+uid="uid://dmd1sqlgd0fgv"
+path="res://.godot/imported/mingun-hands.png-9c6d375333a489c5fa5478ea462aca83.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/player/weapons/shotgun.png"
-dest_files=["res://.godot/imported/shotgun.png-2ac699ea1cd793d6a30cd65a374be377.ctex"]
+source_file="res://assets/art/weapons/mingun-hands.png"
+dest_files=["res://.godot/imported/mingun-hands.png-9c6d375333a489c5fa5478ea462aca83.ctex"]
 
 [params]
 

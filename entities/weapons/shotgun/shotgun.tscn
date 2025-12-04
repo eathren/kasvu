@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://cp3aoekd7sjt7"]
 
 [ext_resource type="Script" uid="uid://bjmivsmcfd771" path="res://entities/weapons/shotgun/shotgun.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://ds6df0mnhn0xu" path="res://assets/art/player/weapons/shotgun.png" id="2_ti805"]
+[ext_resource type="Texture2D" uid="uid://ds6df0mnhn0xu" path="res://assets/art/weapons/shotgun.png" id="2_ti805"]
 [ext_resource type="AudioStream" uid="uid://m83sktau1qk" path="res://assets/audio/sfx/gameplay/pistol_shot.mp3" id="3_0edeb"]
 
 [node name="Shotgun" type="Node2D"]

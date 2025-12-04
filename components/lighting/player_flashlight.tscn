@@ -1,10 +1,9 @@
 [gd_scene load_steps=2 format=3 uid="uid://d4dv0b3xwkoqr"]
 
-[ext_resource type="Texture2D" uid="uid://b7amuvneubnl" path="res://assets/art/lights/flashlight_nd.png" id="1_flashlight"]
+[ext_resource type="Texture2D" uid="uid://ctj01b5tt5qtv" path="res://assets/art/lights/light.webp" id="1_nx0bf"]
 
 [node name="PlayerFlashlight" type="PointLight2D"]
-color = Color(1, 0.96, 0.88, 1)
+color = Color(0.9686249, 0.9524097, 0, 1)
 shadow_enabled = true
 shadow_filter = 1
-texture = ExtResource("1_flashlight")
-texture_scale = 0.3
+texture = ExtResource("1_nx0bf")

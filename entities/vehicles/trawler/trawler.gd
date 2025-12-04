@@ -76,15 +76,8 @@ func _on_enemy_entered(body: Node) -> void:
 		# TODO: Apply damage to trawler health system
 
 func _physics_process(delta: float) -> void:
-	# Move forward only based on current state
-	match current_state:
-		MovementState.STOP:
-			velocity = Vector2.ZERO
-		MovementState.GO:
-			velocity = Vector2.UP.rotated(rotation) * current_speed
-		MovementState.BURST:
-			velocity = Vector2.UP.rotated(rotation) * current_speed * 4
-
+	# Use transform.y for efficient directional movement
+	velocity = -transform.y * current_speed
 	move_and_slide()
 
 func set_movement_state(new_state: MovementState) -> void:
@@ -95,13 +88,19 @@ func set_movement_state(new_state: MovementState) -> void:
 		movement_state_changed.emit(new_state)
 
 func _update_speed_from_state() -> void:
+	current_speed = base_speed * _get_state_multiplier()
+
+func _get_state_multiplier() -> float:
+	"""Get speed multiplier for current state"""
 	match current_state:
 		MovementState.STOP:
-			current_speed = 0.0
+			return 0.0
 		MovementState.GO:
-			current_speed = base_speed
+			return 1.0
 		MovementState.BURST:
-			current_speed = base_speed * burst_multiplier
+			return burst_multiplier
+		_:
+			return 0.0
 
 func _on_go_stick_state_changed(stick_state: int) -> void:
 	"""Handle GoStick state changes and update trawler movement"""

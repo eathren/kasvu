@@ -24,8 +24,8 @@ RunManager="*res://autoloads/run_manager.gd"
 ControlManager="*res://autoloads/control_manager.gd"
 NetworkManager="*res://autoloads/network_manager.gd"
 RoomLibrary="*res://autoloads/room_library.gd"
-ZealManager="*res://autoloads/zeal_manager.gd"
 SceneTransition="*res://ui/transitions/scene_transition.tscn"
+ZealManager="*res://autoloads/zeal_manager.gd"
 
 [display]
 

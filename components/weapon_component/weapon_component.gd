@@ -305,4 +305,3 @@ func _fire_bullet_in_direction(origin: Node2D, direction: Vector2) -> void:
 		# Set shooter ID for kill credit
 		if "shooter_id" in bullet:
 			bullet.shooter_id = _player_id
-
