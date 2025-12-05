@@ -296,10 +296,10 @@ func _apply_tiles(level_data: Dictionary) -> void:
 			# Interior tile - use center
 			wall.set_cell(cell, tile_source_id, wall_center_coord)
 	
-	# Place ore tiles (on ground layer as overlay)
+	# Place ore tiles (on wall layer so they can be mined)
 	for cell in ore_cells:
 		var variant = randi() % wall.ore_coords.size()
-		ground.set_cell(cell, tile_source_id, wall.ore_coords[variant])
+		wall.set_cell(cell, tile_source_id, wall.ore_coords[variant])
 	
 	# Place lava tiles (hazard floor)
 	for cell in lava_cells:
