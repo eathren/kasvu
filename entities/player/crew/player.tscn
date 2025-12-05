@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://c7h4k8v3pbwi2" path="res://components/health_regen/health_regen_component.tscn" id="6_regen"]
 [ext_resource type="PackedScene" uid="uid://d1b5mm0ubnl9" path="res://components/lighting/player_halo.tscn" id="7_halo"]
 [ext_resource type="PackedScene" path="res://components/health_bar/health_bar.tscn" id="8_health_bar"]
+[ext_resource type="PackedScene" uid="uid://cq7yx8xjnb4kh" path="res://components/mining/mining_component.tscn" id="9_mining"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fbmmh"]
 radius = 2.0
@@ -52,3 +53,7 @@ shape = SubResource("CircleShape2D_pickup")
 shape = SubResource("CircleShape2D_fbmmh")
 
 [node name="PlayerHalo" parent="." instance=ExtResource("7_halo")]
+
+[node name="MiningComponent" parent="." instance=ExtResource("9_mining")]
+mining_range = 80.0
+mining_damage = 100.0

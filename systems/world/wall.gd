@@ -3,7 +3,7 @@ extends TileMapLayer
 
 @export var wall_height_cells: int = 200
 @export var nose_gap_tiles: int = 6
-@export var tile_source_id: int = 0  # Wall tileset source (TileSetAtlasSource_tiljq)
+@export var tile_source_id: int = 6  # WFC tileset source
 
 # Tile atlas coordinates (based on new expanded tileset)
 # Row 0: Ceiling tiles (decorative)

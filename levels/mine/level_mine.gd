@@ -22,6 +22,8 @@ var _spawned_chunks: Dictionary = {}  # Vector2i -> bool (tracks spawned room ch
 var _active_rooms: Array[RoomTemplate] = []
 
 func _ready() -> void:
+	add_to_group("level")
+	
 	if RunManager == null:
 		push_error("Level_Mine: RunManager not found")
 		return
@@ -227,6 +229,10 @@ func _apply_tiles(level_data: Dictionary) -> void:
 		push_error("Level_Mine: Ground TileMapLayer not found")
 		return
 	
+	# Clear existing tiles to reset any stale data from old tileset sources
+	wall.clear()
+	ground.clear()
+	
 	# Get tile coordinates from wall script
 	var tile_source_id: int = wall.tile_source_id
 	var ground_coord: Vector2i = wall.ground_coord
@@ -234,18 +240,20 @@ func _apply_tiles(level_data: Dictionary) -> void:
 	var wall_edge_coords: Array = wall.wall_edge_coords
 	var wall_face_coords: Array = wall.wall_face_coords
 	
-	print("Level_Mine: Using tile_source_id=", tile_source_id)
-	print("Level_Mine: ground_coord=", ground_coord)
-	print("Level_Mine: wall_center_coord=", wall_center_coord)
-	print("Level_Mine: wall_edge_coords=", wall_edge_coords)
-	print("Level_Mine: wall_face_coords=", wall_face_coords)
-	
 	# Get all cell types from level data
 	var wall_cells: Array = level_data.get("wall_cells", [])
 	var floor_cells: Array = level_data.get("floor_cells", [])
 	var ore_cells: Array = level_data.get("ore_cells", [])
 	var lava_cells: Array = level_data.get("lava_cells", [])
 	var feature_cells: Dictionary = level_data.get("feature_cells", {})
+	
+	print("Level_Mine: Using tile_source_id=", tile_source_id, " (should be 6)")
+	print("Level_Mine: ground_coord=", ground_coord, " (should be 1,5)")
+	print("Level_Mine: wall_center_coord=", wall_center_coord, " (should be 1,1)")
+	print("Level_Mine: wall_edge_coords=", wall_edge_coords)
+	print("Level_Mine: wall_face_coords=", wall_face_coords)
+	print("Level_Mine: ore_coords=", wall.ore_coords)
+	print("Level_Mine: Total cells - walls:", wall_cells.size(), " floors:", floor_cells.size(), " ores:", ore_cells.size())
 	
 	# Build a set for O(1) neighbor lookups
 	var wall_set := {}

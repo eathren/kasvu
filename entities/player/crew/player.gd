@@ -110,8 +110,7 @@ func take_damage(amount: int) -> void:
 func _handle_firing() -> void:
 	"""Twin-stick shooter firing - aim with right stick or mouse"""
 	var weapon_component = get_node_or_null("WeaponComponent") as WeaponComponent
-	if not weapon_component:
-		return
+	var mining_component = get_node_or_null("MiningComponent") as Node2D
 	
 	# Get aim direction from right stick or mouse
 	var aim_dir := Vector2.ZERO
@@ -128,8 +127,26 @@ func _handle_firing() -> void:
 			var mouse_pos := get_global_mouse_position()
 			aim_dir = global_position.direction_to(mouse_pos)
 	
-	# Fire continuously while aiming
-	if aim_dir.length() > 0.1:
+	# Check if mining key is held (secondary action)
+	var is_mining_pressed := Input.is_action_pressed("interact") or Input.is_action_pressed("ui_accept")
+	
+	if is_mining_pressed and aim_dir.length() > 0.1:
+		# Mining mode - dig in aim direction
+		aim_dir = aim_dir.normalized()
+		look_direction = aim_dir
+		
+		if mining_component and mining_component.has_method("start_mining"):
+			mining_component.start_mining(aim_dir)
+		
+		# Don't fire weapon while mining
+		return
+	else:
+		# Stop mining when key released
+		if mining_component and mining_component.has_method("stop_mining"):
+			mining_component.stop_mining()
+	
+	# Fire weapon continuously while aiming (and not mining)
+	if aim_dir.length() > 0.1 and weapon_component:
 		aim_dir = aim_dir.normalized()
 		look_direction = aim_dir
 		weapon_component.fire_in_direction(self, aim_dir)

@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://cq7yx8xjnb4kh"]
+
+[ext_resource type="Script" path="res://components/mining/mining_component.gd" id="1_mining"]
+
+[node name="MiningComponent" type="Node2D"]
+script = ExtResource("1_mining")
+
+[node name="LaserLine" type="Line2D" parent="."]
+width = 2.0
+default_color = Color(1, 0.8, 0.2, 0.8)
