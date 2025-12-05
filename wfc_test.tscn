@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://bw2fje41riemq"]
+
+[ext_resource type="Script" uid="uid://bg21bg8jad2f3" path="res://dev/wfc/wfc_test.gd" id="1_irsjm"]
+[ext_resource type="TileSet" uid="uid://cmlbl3ilv31lo" path="res://resources/tilesets/wall_tileset.tres" id="1_tileset"]
+
+[node name="WFC_Test" type="Node2D"]
+script = ExtResource("1_irsjm")
+
+[node name="SampleMap" type="TileMapLayer" parent="."]
+position = Vector2(-1000, 0)
+tile_set = ExtResource("1_tileset")
+
+[node name="TargetMap" type="TileMapLayer" parent="."]
+tile_set = ExtResource("1_tileset")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.5, 0.5)
