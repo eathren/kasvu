@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://bj53eukoey856"]
+[gd_scene load_steps=8 format=3 uid="uid://bj53eukoey856"]
 
 [ext_resource type="Script" uid="uid://8mng4l478afb" path="res://entities/player/crew/player.gd" id="1_qgw2i"]
 [ext_resource type="Texture2D" uid="uid://btyw6bsgsr1vg" path="res://assets/art/player/player.png" id="2_77456"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://dptvykd5bxq0a" path="res://components/hurtbox/hurtbox_component.tscn" id="5_hurtbox"]
 [ext_resource type="PackedScene" uid="uid://c7h4k8v3pbwi2" path="res://components/health_regen/health_regen_component.tscn" id="6_regen"]
 [ext_resource type="PackedScene" uid="uid://d1b5mm0ubnl9" path="res://components/lighting/player_halo.tscn" id="7_halo"]
+[ext_resource type="PackedScene" path="res://components/health_bar/health_bar.tscn" id="8_health_bar"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fbmmh"]
 radius = 2.0
@@ -27,6 +28,12 @@ texture = ExtResource("2_77456")
 shape = SubResource("CircleShape2D_fbmmh")
 
 [node name="HealthComponent" parent="." instance=ExtResource("3_health")]
+max_health = 100
+
+[node name="HealthBar" parent="." instance=ExtResource("8_health_bar")]
+bar_width = 20.0
+bar_height = 2.0
+offset_y = 10.0
 
 [node name="SpeedComponent" parent="." instance=ExtResource("4_speed")]
 

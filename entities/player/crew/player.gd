@@ -20,12 +20,16 @@ func _ready() -> void:
 	if hurtbox:
 		hurtbox.hit_received.connect(_on_hit_received)
 	
+	# Connect to health component death signal
+	var health_component = get_node_or_null("HealthComponent") as HealthComponent
+	if health_component:
+		health_component.died.connect(_on_died)
+	
 	# Apply stats from crew_stats resource
 	if crew_stats:
 		speed = crew_stats.move_speed
 		
 		# Apply to HealthComponent (scaled by team level)
-		var health_component := get_node_or_null("HealthComponent") as HealthComponent
 		if health_component:
 			health_component.max_health = GameState.get_base_max_health()
 			health_component.current_health = health_component.max_health
@@ -167,3 +171,70 @@ func _spawn_health_bar() -> void:
 	health_bar.add_theme_stylebox_override("fill", style_fill)
 	
 	add_child(health_bar)
+
+func _on_died(last_attacker_id: int = -1) -> void:
+	"""Called when player health reaches 0"""
+	deactivate()
+	
+	# Show death screen
+	if multiplayer.is_server():
+		_show_death_screen()
+
+func _show_death_screen() -> void:
+	"""Display death recap with stats and return to menu"""
+	# Get game statistics
+	var gold = GameState.gold if GameState and GameState.has_method("get_gold") else 0
+	var kills = RunManager.total_kills if RunManager and RunManager.has_method("get_total_kills") else 0
+	var level = GameState.current_level if GameState else 0
+	var time_alive = Time.get_ticks_msec() / 1000.0  # Approximate
+	
+	# Create a simple death screen overlay
+	var death_panel = PanelContainer.new()
+	death_panel.anchor_left = 0.0
+	death_panel.anchor_top = 0.0
+	death_panel.anchor_right = 1.0
+	death_panel.anchor_bottom = 1.0
+	death_panel.modulate = Color(0, 0, 0, 0.8)
+	
+	# Create a VBox for the death info
+	var vbox = VBoxContainer.new()
+	vbox.anchor_left = 0.5
+	vbox.anchor_top = 0.5
+	vbox.anchor_right = 0.5
+	vbox.anchor_bottom = 0.5
+	vbox.offset_left = -150
+	vbox.offset_top = -100
+	vbox.custom_minimum_size = Vector2(300, 200)
+	vbox.add_theme_constant_override("separation", 10)
+	
+	# Title
+	var title = Label.new()
+	title.text = "YOU DIED"
+	title.add_theme_font_size_override("font_size", 32)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+	
+	# Stats
+	var stats_text = "Level: %d\nGold: %d\nKills: %d" % [level, gold, kills]
+	var stats_label = Label.new()
+	stats_label.text = stats_text
+	stats_label.add_theme_font_size_override("font_size", 20)
+	stats_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(stats_label)
+	
+	# Spacer
+	var spacer = Control.new()
+	spacer.custom_minimum_size = Vector2(0, 20)
+	vbox.add_child(spacer)
+	
+	# Return to menu button
+	var menu_button = Button.new()
+	menu_button.text = "Return to Menu"
+	menu_button.custom_minimum_size = Vector2(200, 40)
+	menu_button.pressed.connect(func(): get_tree().change_scene_to_file("res://ui/menus/main_menu.tscn"))
+	vbox.add_child(menu_button)
+	
+	death_panel.add_child(vbox)
+	
+	# Add to scene tree as overlay
+	get_tree().root.add_child(death_panel)

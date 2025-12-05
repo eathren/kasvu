@@ -2,80 +2,56 @@ extends Node
 class_name HealthComponent
 
 @export var max_health: int = 100
-@export var show_damage_numbers: bool = true
+
 var current_health: int
+var last_attacker_id: int = -1
 
 signal health_changed(current: int, max: int)
-signal died
-
-var damage_number_scene: PackedScene = preload("res://ui/damage_numbers/damage_number.tscn")
-var last_attacker_id: int = -1  # Track who dealt the last damage (for kill credit)
+signal died(last_attacker_id: int)
+signal damaged(amount: int, is_crit: bool, is_megacrit: bool, attacker_id: int)
 
 func _ready() -> void:
 	current_health = max_health
+	health_changed.emit(current_health, max_health)
 
-func apply_damage(amount: int, is_crit: bool = false, is_megacrit: bool = false, attacker_id: int = -1) -> void:
-	if amount <= 0 or current_health <= 0:
+func _set_health(value: int) -> void:
+	var clamped :int = clamp(value, 0, max_health)
+	if clamped == current_health:
 		return
 	
-	# Track who dealt this damage
-	if attacker_id >= 0:
-		last_attacker_id = attacker_id
-
-	current_health -= amount
-	if current_health < 0:
-		current_health = 0
-
+	current_health = clamped
 	health_changed.emit(current_health, max_health)
 	
-	# Spawn damage number
-	if show_damage_numbers:
-		_spawn_damage_number(amount, is_crit, is_megacrit)
-
 	if current_health == 0:
-		died.emit()
+		print("[HealthComponent] ", get_parent().name, " DIED! Emitting died signal with attacker_id: ", last_attacker_id)
+		died.emit(last_attacker_id)
 
-## Alias for compatibility
-func take_damage(amount: float, is_crit: bool = false, is_megacrit: bool = false) -> void:
-	apply_damage(int(amount), is_crit, is_megacrit)
+func apply_damage(amount: int, is_crit: bool = false, is_megacrit: bool = false, attacker_id: int = -1) -> void:
+	if amount <= 0:
+		return
+	
+	if current_health <= 0:
+		return
+	
+	if attacker_id >= 0:
+		last_attacker_id = attacker_id
+	
+	damaged.emit(amount, is_crit, is_megacrit, attacker_id)
+	
+	var new_health = current_health - amount
+	print("[HealthComponent] ", get_parent().name, " taking ", amount, " damage. Health: ", current_health, " -> ", max(0, new_health))
+	_set_health(new_health)
 
-func _spawn_damage_number(amount: int, is_crit: bool, is_megacrit: bool) -> void:
-	"""Spawn a floating damage number above the entity"""
-	if not damage_number_scene:
-		return
-	
-	var parent = get_parent()
-	if not parent:
-		return
-	
-	var damage_num = damage_number_scene.instantiate() as Node2D
-	if not damage_num:
-		return
-	
-	# Determine damage type
-	var damage_type = DamageNumber.DamageType.NORMAL
-	if is_megacrit:
-		damage_type = DamageNumber.DamageType.MEGACRIT
-	elif is_crit:
-		damage_type = DamageNumber.DamageType.CRIT
-	
-	damage_num.setup(amount, damage_type)
-	damage_num.global_position = parent.global_position + Vector2(0, -16)
-	
-	# Add to level root (not to the enemy, in case it dies)
-	var level = get_tree().current_scene
-	if level:
-		level.add_child(damage_num)
+func take_damage(amount: float, is_crit: bool = false, is_megacrit: bool = false, attacker_id: int = -1) -> void:
+	apply_damage(int(amount), is_crit, is_megacrit, attacker_id)
 
 func heal(amount: int) -> void:
 	if amount <= 0 or current_health <= 0:
 		return
-
-	current_health += amount
-	if current_health > max_health:
-		current_health = max_health
-
-	health_changed.emit(current_health, max_health)
+	_set_health(current_health + amount)
 
 func is_dead() -> bool:
 	return current_health <= 0
+
+func get_last_attacker_id() -> int:
+	return last_attacker_id

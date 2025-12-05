@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bq8x7k2m3n4p5"]
+[gd_scene load_steps=12 format=3 uid="uid://bq8x7k2m3n4p5"]
 
 [ext_resource type="PackedScene" uid="uid://bmqm3l87s438b" path="res://systems/world/world_root.tscn" id="1_world"]
 [ext_resource type="PackedScene" uid="uid://dwjxh6hrypua3" path="res://entities/vehicles/trawler/trawler.tscn" id="2_trawler"]
@@ -9,6 +9,9 @@
 [ext_resource type="PackedScene" uid="uid://hud_uid_12345" path="res://ui/hud/game_hud.tscn" id="7_hud"]
 [ext_resource type="PackedScene" uid="uid://pause_menu_uid" path="res://ui/menus/pause_menu.tscn" id="8_pause"]
 [ext_resource type="PackedScene" path="res://components/pathfinding/pathfinding_manager.tscn" id="9_pathfinding"]
+[ext_resource type="Script" path="res://systems/combat/damage_number_manager.gd" id="10_damage_numbers"]
+[ext_resource type="Script" path="res://systems/combat/hurtbox_feedback_manager.gd" id="11_hurtbox_feedback"]
+[ext_resource type="Script" path="res://systems/combat/pickup_multiplier_manager.gd" id="12_pickup_multiplier"]
 
 [node name="Level_Mine" type="Node2D"]
 script = ExtResource("3_script")
@@ -22,6 +25,15 @@ grid_chunk_size = 500
 grid_tile_size = 16
 update_frequency = 0.5
 player_grid_distance = 300.0
+
+[node name="DamageNumberManager" type="Node" parent="."]
+script = ExtResource("10_damage_numbers")
+
+[node name="HurtboxFeedbackManager" type="Node" parent="."]
+script = ExtResource("11_hurtbox_feedback")
+
+[node name="PickupMultiplierManager" type="Node" parent="."]
+script = ExtResource("12_pickup_multiplier")
 
 [node name="Trawler" parent="." instance=ExtResource("2_trawler")]
 position = Vector2(74, -44)

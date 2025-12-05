@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dwjxh6hrypua3"]
+[gd_scene load_steps=14 format=3 uid="uid://dwjxh6hrypua3"]
 
 [ext_resource type="Script" uid="uid://b31epxhbt6duc" path="res://entities/vehicles/trawler/trawler.gd" id="1_byw1e"]
 [ext_resource type="Texture2D" uid="uid://d1x04najel8kl" path="res://assets/art/player/trawler/trawler.png" id="4_p3rct"]
@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" uid="uid://c5k8x6v4pbwi" path="res://components/speed_component/speed_component.tscn" id="10_speed"]
 [ext_resource type="PackedScene" uid="uid://yenc6seu8kjb" path="res://entities/vehicles/trawler/drill.tscn" id="11_i8mar"]
 [ext_resource type="PackedScene" uid="uid://bblf61bcy8jv3" path="res://entities/vehicles/trawler/ship_dock.tscn" id="11_ship_dock"]
+[ext_resource type="PackedScene" path="res://components/health_bar/health_bar.tscn" id="12_health_bar"]
+[ext_resource type="PackedScene" uid="uid://dptvykd5bxq0a" path="res://components/hurtbox/hurtbox_component.tscn" id="13_hurtbox"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c0e4k"]
 size = Vector2(94, 290)
@@ -48,7 +50,7 @@ shape = SubResource("RectangleShape2D_c0e4k")
 
 [node name="EnemyHull" type="StaticBody2D" parent="."]
 collision_layer = 2
-collision_mask = 0
+collision_mask = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyHull"]
 shape = SubResource("RectangleShape2D_c0e4k")
@@ -61,6 +63,16 @@ shape = SubResource("RectangleShape2D_c0e4k")
 
 [node name="HealthComponent" parent="." instance=ExtResource("9_health")]
 max_health = 500
+
+[node name="HealthBar" parent="." instance=ExtResource("12_health_bar")]
+bar_width = 80.0
+bar_height = 8.0
+offset_y = 160.0
+
+[node name="HurtboxComponent" parent="." instance=ExtResource("13_hurtbox")]
+
+[node name="CollisionShape2D" parent="HurtboxComponent" index="0"]
+shape = SubResource("RectangleShape2D_c0e4k")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("4_p3rct")

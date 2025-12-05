@@ -7,8 +7,6 @@ class_name ExpCrystal
 
 @onready var pickup_component: PickupComponent = $PickupComponent
 
-
-
 func _ready() -> void:
 	collision_layer = 256  # Pickup layer (bit 9)
 	collision_mask = 4  # Player layer (bit 3)

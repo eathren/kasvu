@@ -12,8 +12,7 @@ const RoomConstants = preload("res://rooms/room_constants.gd")
 @onready var room_root: Node2D = $WorldRoot/RoomRoot
 @onready var pathfinding_manager: PathfindingManager = $PathfindingManager
 @export var enemy_scene: PackedScene = preload("res://entities/enemies/imp/imp.tscn")
-@export var crew_scene: PackedScene = preload("res://entities/player/crew/player.tscn")
-@export var spawns_per_second: float = 1.0
+@export var spawns_per_second: float = 5.0
 @export var rooms_per_chunk: int = 3  # Number of rooms to spawn per chunk
 @export var chunk_spacing: float = 800.0  # Distance between room chunks
 

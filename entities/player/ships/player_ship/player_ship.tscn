@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dvdwdt6vbluqh"]
+[gd_scene load_steps=15 format=3 uid="uid://dvdwdt6vbluqh"]
 
 [ext_resource type="PackedScene" uid="uid://bqe8adk2boluh" path="res://systems/combat/laser.tscn" id="1_laser"]
 [ext_resource type="Script" uid="uid://cdwve1ivpvgr2" path="res://entities/player/ships/player_ship/player_ship.gd" id="1_script"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://components/weapon_manager/weapon_manager.tscn" id="6_weapon"]
 [ext_resource type="Texture2D" uid="uid://ctj01b5tt5qtv" path="res://assets/art/lights/light.webp" id="8_3soja"]
 [ext_resource type="Script" uid="uid://cq6gi25hkhyv3" path="res://entities/player/player_controller.gd" id="10_controller"]
+[ext_resource type="PackedScene" path="res://components/health_bar/health_bar.tscn" id="11_health_bar"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ship"]
 radius = 12.0
@@ -36,7 +37,6 @@ motion_mode = 1
 script = ExtResource("1_script")
 
 [node name="PlayerFlashlight" parent="." instance=ExtResource("2_pm10k")]
-texture = ExtResource("8_3soja")
 
 [node name="LeftLaser" parent="." instance=ExtResource("1_laser")]
 position = Vector2(-6, 0)
@@ -61,6 +61,11 @@ texture = ExtResource("3_pm10k")
 shape = SubResource("CircleShape2D_ship")
 
 [node name="HealthComponent" parent="." instance=ExtResource("4_health")]
+
+[node name="HealthBar" parent="." instance=ExtResource("11_health_bar")]
+bar_width = 48.0
+bar_height = 5.0
+offset_y = 25.0
 
 [node name="SpeedComponent" parent="." instance=ExtResource("5_speed")]
 base_speed = 150.0

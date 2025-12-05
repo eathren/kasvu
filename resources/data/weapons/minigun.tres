@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3 uid="uid://c2kbk8ybll5m"]
+
+[ext_resource type="Script" uid="uid://j7y4014ogrdd" path="res://resources/data/weapons/weapon_data.gd" id="1_weapon"]
+[ext_resource type="PackedScene" uid="uid://bjsas1kty8730" path="res://entities/projectiles/bullet/bullet.tscn" id="3_bullet"]
+
+[resource]
+script = ExtResource("1_weapon")
+weapon_name = "Minigun"
+weapon_type = 0
+fire_pattern = 0
+base_damage = 8.0
+damage_variance = 0.15
+base_fire_rate = 10.0
+base_projectile_count = 1
+base_projectile_speed = 500.0
+base_pierce = 0
+base_range = 600.0
+base_spread_angle = 1.0
+damage_per_level = 2.0
+fire_rate_per_level = 1.0
+projectile_count_per_level = 0
+projectile_scene = ExtResource("3_bullet")
+projectile_color = Color(1, 1, 1, 1)
+projectile_scale = 1.0
+can_crit = true
+can_pierce = false
+can_chain = false
+can_explode = false
+max_level = 7

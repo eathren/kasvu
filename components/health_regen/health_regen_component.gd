@@ -2,7 +2,9 @@ extends Node
 class_name HealthRegenComponent
 
 ## Handles health regeneration over time
-## Automatically connects to HealthComponent if present
+## Decoupled: emits heal_requested signal instead of directly calling health component
+
+signal heal_requested(amount: int)
 
 @export var base_regen_per_second: float = 0.0  # Base regeneration rate
 @export var health_component_path: NodePath = NodePath("../HealthComponent")
@@ -12,9 +14,12 @@ var current_regen_rate: float = 0.0
 var regen_timer: float = 0.0
 
 func _ready() -> void:
-	# Find health component
+	# Find health component and connect to it
 	if has_node(health_component_path):
 		health_component = get_node(health_component_path) as HealthComponent
+		# Connect our signal to health component
+		if health_component:
+			heal_requested.connect(health_component.heal)
 	
 	current_regen_rate = base_regen_per_second
 
@@ -32,7 +37,7 @@ func _process(delta: float) -> void:
 	# Regenerate 1 health per tick
 	while regen_timer >= 1.0 / current_regen_rate:
 		regen_timer -= 1.0 / current_regen_rate
-		health_component.heal(1)
+		heal_requested.emit(1)
 
 func set_regen_rate(rate: float) -> void:
 	"""Set the regeneration rate (health per second)"""

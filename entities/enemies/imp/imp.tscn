@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dfsbjqd8ea5ga"]
+[gd_scene load_steps=9 format=3 uid="uid://dfsbjqd8ea5ga"]
 
 [ext_resource type="Texture2D" uid="uid://b0ijhwuafskac" path="res://assets/art/enemies/imp.png" id="1_6nf23"]
 [ext_resource type="Script" uid="uid://q617211mied1" path="res://entities/enemies/enemies.gd" id="1_45r1c"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://components/pathfinding/pathfinding_component.tscn" id="6_pathfind"]
 [ext_resource type="PackedScene" uid="uid://touch_damage_component" path="res://components/damage/touch_damage_component.tscn" id="7_damage"]
 [ext_resource type="PackedScene" uid="uid://dptvykd5bxq0a" path="res://components/hurtbox/hurtbox_component.tscn" id="8_hurtbox"]
+[ext_resource type="PackedScene" path="res://components/health_bar/health_bar.tscn" id="9_health_bar"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_45r1c"]
 radius = 5.0
@@ -22,7 +23,7 @@ properties/1/replication_mode = 1
 
 [node name="Imp" type="CharacterBody2D"]
 collision_layer = 1
-collision_mask = 16
+collision_mask = 8
 motion_mode = 1
 script = ExtResource("1_45r1c")
 
@@ -35,6 +36,11 @@ texture = ExtResource("1_6nf23")
 
 [node name="HealthComponent" parent="." instance=ExtResource("3_pfgnl")]
 max_health = 20
+
+[node name="HealthBar" parent="." instance=ExtResource("9_health_bar")]
+bar_width = 32.0
+bar_height = 4.0
+offset_y = 20.0
 
 [node name="SpeedComponent" parent="." instance=ExtResource("4_speed")]
 base_speed = 60.0
@@ -56,7 +62,7 @@ shape = SubResource("CircleShape2D_45r1c")
 
 [node name="DamageArea" type="Area2D" parent="."]
 collision_layer = 8
-collision_mask = 0
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea"]
 shape = SubResource("CircleShape2D_45r1c")

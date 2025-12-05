@@ -43,6 +43,7 @@ var starting_weapon := preload("res://resources/config/weapons/basic_gun.tres") 
 var current_weapon: Node2D = null
 var is_attacking: bool = false
 
+
 func _ready() -> void:
 	add_to_group("player_ship")
 	
@@ -57,10 +58,10 @@ func _ready() -> void:
 		if starting_weapon:
 			weapon_manager.add_weapon(starting_weapon)
 	
-	# Equip shotgun
-	var shotgun_scene = preload("res://entities/weapons/shotgun/shotgun.tscn")
-	if shotgun_scene and weapon_hand:
-		current_weapon = shotgun_scene.instantiate()
+	# Equip minigun
+	var minigun_scene = preload("res://entities/weapons/minigun/minigun.tscn")
+	if minigun_scene and weapon_hand:
+		current_weapon = minigun_scene.instantiate()
 		weapon_hand.add_child(current_weapon)
 	
 	# Apply stats from ship_stats resource
@@ -71,6 +72,8 @@ func _ready() -> void:
 		if health_component:
 			health_component.max_health = ship_stats.max_health
 			health_component.current_health = ship_stats.max_health
+			# Connect death signal
+			health_component.died.connect(_on_died)
 		
 		var speed_component := get_node_or_null("SpeedComponent")
 		if speed_component:
@@ -108,6 +111,11 @@ func _physics_process(delta: float) -> void:
 	
 	# Update sprite flip and weapon positioning
 	_update_sprite_and_weapons()
+	
+	# Handle continuous firing for minigun
+	if is_attacking and current_weapon:
+		if current_weapon.has_method("fire"):
+			current_weapon.fire(look_direction, 0)
 	
 	# Handle Dash State
 	if is_dashing:
@@ -188,9 +196,14 @@ func _input(event: InputEvent) -> void:
 	if not is_multiplayer_authority():
 		return
 	
-	# Attack (Left Click or Joystick trigger)
+	# Attack (Left Click or Joystick trigger) - start/stop continuous fire
 	if event.is_action_pressed("attack"):
-		_attack()
+		is_attacking = true
+	elif event.is_action_released("attack"):
+		is_attacking = false
+		# Stop firing on minigun
+		if current_weapon and current_weapon.has_method("stop_firing"):
+			current_weapon.stop_firing()
 	
 	# Try to dock/undock (E key)
 	if event.is_action_pressed("interact"):
@@ -203,13 +216,6 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			_try_dash()
-
-func _attack() -> void:
-	if not current_weapon:
-		return
-	
-	if current_weapon.has_method("fire"):
-		current_weapon.fire(look_direction, 0)  # 0 = player faction
 
 func try_dock() -> void:
 	"""Request docking if near current dock"""
@@ -309,3 +315,77 @@ func _end_dash() -> void:
 	
 	# Reset visuals
 	modulate.a = 1.0
+
+func _on_died(last_attacker_id: int = -1) -> void:
+	"""Called when player ship health reaches 0"""
+	# Deactivate the ship
+	is_active = false
+	set_physics_process(false)
+	
+	# Show death screen
+	_show_death_screen()
+
+func _show_death_screen() -> void:
+	"""Display death recap with stats and return to menu"""
+	# Get game statistics
+	var gold = GameState.gold if GameState and GameState.has_method("gold") else 0
+	var level = RunManager.current_level_num if RunManager else 0
+	
+	# Create death panel
+	var death_panel = PanelContainer.new()
+	death_panel.anchor_left = 0.0
+	death_panel.anchor_top = 0.0
+	death_panel.anchor_right = 1.0
+	death_panel.anchor_bottom = 1.0
+	
+	var bg = StyleBoxFlat.new()
+	bg.bg_color = Color(0, 0, 0, 0.85)
+	death_panel.add_theme_stylebox_override("panel", bg)
+	
+	# Create VBox for death info
+	var vbox = VBoxContainer.new()
+	vbox.anchor_left = 0.5
+	vbox.anchor_top = 0.5
+	vbox.anchor_right = 0.5
+	vbox.anchor_bottom = 0.5
+	vbox.offset_left = -150
+	vbox.offset_top = -100
+	vbox.custom_minimum_size = Vector2(300, 200)
+	vbox.add_theme_constant_override("separation", 20)
+	
+	# Title
+	var title = Label.new()
+	title.text = "YOU DIED"
+	title.add_theme_font_size_override("font_size", 40)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+	
+	# Stats
+	var stats_text = "Level: %d\nGold Collected: %d" % [level, gold]
+	var stats_label = Label.new()
+	stats_label.text = stats_text
+	stats_label.add_theme_font_size_override("font_size", 24)
+	stats_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(stats_label)
+	
+	# Spacer
+	var spacer = Control.new()
+	spacer.custom_minimum_size = Vector2(0, 30)
+	vbox.add_child(spacer)
+	
+	# Return to menu button
+	var menu_button = Button.new()
+	menu_button.text = "Return to Menu"
+	menu_button.custom_minimum_size = Vector2(200, 50)
+	menu_button.add_theme_font_size_override("font_size", 20)
+	menu_button.pressed.connect(func(): 
+		get_tree().paused = false
+		get_tree().change_scene_to_file("res://ui/menus/main_menu.tscn")
+	)
+	vbox.add_child(menu_button)
+	
+	death_panel.add_child(vbox)
+	
+	# Add to scene tree as overlay
+	get_tree().root.add_child(death_panel)
+	get_tree().paused = true
