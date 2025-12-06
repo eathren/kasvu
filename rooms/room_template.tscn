@@ -1,18 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://h7u0pw4eih5v"]
+[gd_scene load_steps=3 format=3 uid="uid://h7u0pw4eih5v"]
 
-[ext_resource type="Script" path="res://rooms/room_template.gd" id="1_template"]
+[ext_resource type="Script" uid="uid://8g54yi3hlw6h" path="res://rooms/room_template.gd" id="1_template"]
+[ext_resource type="TileSet" uid="uid://cmlbl3ilv31lo" path="res://resources/tilesets/wall_tileset.tres" id="2_tileset"]
 
 [node name="RoomTemplate" type="Node2D"]
 script = ExtResource("1_template")
 
-[node name="FloorLayer" type="TileMapLayer" parent="."]
-
-[node name="WallLayer" type="TileMapLayer" parent="."]
-
-[node name="Markers" type="Node2D" parent="."]
-
-[node name="DoorMarkers" type="Node2D" parent="Markers"]
-
-[node name="LootMarkers" type="Node2D" parent="Markers"]
-
-[node name="EnemyMarkers" type="Node2D" parent="Markers"]
+[node name="SampleMap" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2_tileset")

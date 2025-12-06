@@ -370,7 +370,11 @@ func _load_template_samples() -> Dictionary:
 		SegmentType.TEMPLE: "res://rooms/templates/temple.tscn",
 		SegmentType.BIG_CHAMBER: "res://rooms/templates/big_chamber.tscn",
 		SegmentType.CORRUPTED: "res://rooms/templates/corrupted.tscn",
-		SegmentType.ORE: "res://rooms/templates/ore_vein.tscn"
+		SegmentType.ORE: "res://rooms/templates/ore_vein.tscn",
+		# Additional templates for variety
+		"treasure_vault": "res://rooms/templates/treasure_vault.tscn",
+		"boss_arena": "res://rooms/templates/boss_arena.tscn",
+		"nest": "res://rooms/templates/nest.tscn"
 	}
 	
 	for seg_type in templates:

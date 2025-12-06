@@ -12,11 +12,8 @@ func _ready() -> void:
 func _register_rooms() -> void:
 	## Register all your room template scenes here
 	## Add more as you create them
-	_register("res://rooms/templates/room_start_a.tscn")
-	_register("res://rooms/templates/room_combat_a.tscn")
-	_register("res://rooms/templates/room_combat_b.tscn")
-	# _register("res://rooms/templates/room_shop_a.tscn")
-	# _register("res://rooms/templates/room_boss_a.tscn")
+	pass
+
 
 func _register(path: String) -> void:
 	if not ResourceLoader.exists(path):
@@ -30,8 +27,8 @@ func _register(path: String) -> void:
 		push_error("Failed to instantiate room template: %s" % path)
 		return
 	
-	var mask := inst.door_mask
-	var type := inst.room_type
+	var mask = inst.door_mask
+	var type = inst.room_type
 	
 	# Index by door mask
 	if not rooms_by_mask.has(mask):
