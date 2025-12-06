@@ -76,18 +76,31 @@ func _create_macro_layout() -> void:
 	# Center column index
 	var center_x = SEG_W / 2
 	
-	# Mark center column as SHAFT
-	for y in range(SEG_H):
-		segments[y][center_x] = SegmentType.SHAFT
-	
-	# Top 2 segments are spawn rooms
-	segments[0][center_x] = SegmentType.ROOM
+	# Fill center column with varied segment types (trawler will burrow through)
+	segments[0][center_x] = SegmentType.ROOM  # Spawn area
 	segments[1][center_x] = SegmentType.ROOM
 	
-	# Create side branches every 3-5 segments
+	for y in range(2, SEG_H):
+		var roll = rng.randf()
+		if roll < 0.3:
+			segments[y][center_x] = SegmentType.SHAFT
+		elif roll < 0.45:
+			segments[y][center_x] = SegmentType.ROOM
+		elif roll < 0.6:
+			segments[y][center_x] = SegmentType.BIG_CHAMBER
+		elif roll < 0.7:
+			segments[y][center_x] = SegmentType.TEMPLE
+		elif roll < 0.8:
+			segments[y][center_x] = SegmentType.ORE
+		elif roll < 0.9:
+			segments[y][center_x] = SegmentType.CORRUPTED
+		else:
+			segments[y][center_x] = SegmentType.SIDE_TUNNEL
+	
+	# Create side branches every 2-4 segments (more frequent)
 	var y = 3
 	while y < SEG_H:
-		var branch_length = rng.randi_range(2, 4)
+		var branch_length = rng.randi_range(2, 5)  # Longer branches
 		var go_left = rng.randf() < 0.5
 		
 		# Branch direction
@@ -101,27 +114,61 @@ func _create_macro_layout() -> void:
 			
 			segments[y][branch_x] = SegmentType.SIDE_TUNNEL
 			
-			# Sometimes add ore or corruption near tunnels
-			if rng.randf() < 0.3 and branch_x + dx >= 0 and branch_x + dx < SEG_W:
-				if rng.randf() < 0.5:
+			# Add more variety near tunnels (higher chance)
+			if rng.randf() < 0.6 and branch_x + dx >= 0 and branch_x + dx < SEG_W:
+				var roll = rng.randf()
+				if roll < 0.35:
 					segments[y][branch_x + dx] = SegmentType.ORE
-				else:
+				elif roll < 0.65:
 					segments[y][branch_x + dx] = SegmentType.CORRUPTED
+				else:
+					segments[y][branch_x + dx] = SegmentType.ROOM
 			
 			branch_x += dx
 		
-		# End with a chamber
+		# End with a chamber (more variety)
 		if branch_x >= 0 and branch_x < SEG_W:
 			var chamber_type = rng.randf()
-			if chamber_type < 0.3:
+			if chamber_type < 0.2:
 				segments[y][branch_x] = SegmentType.TEMPLE
-			elif chamber_type < 0.7:
+			elif chamber_type < 0.5:
 				segments[y][branch_x] = SegmentType.BIG_CHAMBER
-			else:
+			elif chamber_type < 0.7:
 				segments[y][branch_x] = SegmentType.ROOM
+			elif chamber_type < 0.85:
+				segments[y][branch_x] = SegmentType.ORE
+			else:
+				segments[y][branch_x] = SegmentType.CORRUPTED
 		
-		# Next branch
-		y += rng.randi_range(3, 5)
+		# Next branch (more frequent)
+		y += rng.randi_range(2, 4)
+	
+	# Add scattered special zones in solid areas
+	for attempt in range(20):
+		var zone_x = rng.randi_range(0, SEG_W - 1)
+		var zone_y = rng.randi_range(4, SEG_H - 1)
+		
+		# Only place in solid areas
+		if segments[zone_y][zone_x] == SegmentType.SOLID:
+			var zone_type = rng.randf()
+			if zone_type < 0.3:
+				# Small ore pocket (1-2 segments)
+				segments[zone_y][zone_x] = SegmentType.ORE
+				if zone_x + 1 < SEG_W and segments[zone_y][zone_x + 1] == SegmentType.SOLID and rng.randf() < 0.5:
+					segments[zone_y][zone_x + 1] = SegmentType.ORE
+			elif zone_type < 0.5:
+				# Hidden temple
+				segments[zone_y][zone_x] = SegmentType.TEMPLE
+			elif zone_type < 0.7:
+				# Corrupted zone (2x2)
+				segments[zone_y][zone_x] = SegmentType.CORRUPTED
+				if zone_x + 1 < SEG_W and segments[zone_y][zone_x + 1] == SegmentType.SOLID:
+					segments[zone_y][zone_x + 1] = SegmentType.CORRUPTED
+				if zone_y + 1 < SEG_H and segments[zone_y + 1][zone_x] == SegmentType.SOLID:
+					segments[zone_y + 1][zone_x] = SegmentType.CORRUPTED
+			else:
+				# Big chamber
+				segments[zone_y][zone_x] = SegmentType.BIG_CHAMBER
 	
 	# Log segment counts
 	var counts = {}
