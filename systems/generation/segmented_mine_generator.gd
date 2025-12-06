@@ -20,7 +20,8 @@ enum SegmentType {
 	TEMPLE,
 	BIG_CHAMBER,
 	CORRUPTED,
-	ORE
+	ORE,
+	EMPTY
 }
 
 # Segmentation data
@@ -127,7 +128,7 @@ func _generate_main_shaft() -> void:
 	# BOTTOM: Wall barrier (segment 18) → Empty spawn zone (segment 19)
 	# segments[18] stays SOLID - wall barrier
 	for spawn_x in range(SEG_W):
-		segments[19][spawn_x] = SegmentType.ROOM  # Player spawn - completely empty
+		segments[19][spawn_x] = SegmentType.EMPTY  # Player spawn - completely empty
 	
 	print("[SegGen] Layout: EMPTY(boss y=0) → WALL(y=1) → MAZE(y=2-17) → WALL(y=18) → EMPTY(spawn y=19)")
 
@@ -425,6 +426,8 @@ func _get_rules_for_type(seg_type: SegmentType) -> Dictionary:
 			return {"floor_margin": 3, "lava_chance": 0.3}
 		SegmentType.ORE:
 			return {"floor_margin": 3, "ore_chance": 0.5}
+		SegmentType.EMPTY:
+			return {}
 	
 	return {}
 
@@ -487,6 +490,9 @@ func _get_tile_for_position(local_x: int, local_y: int, seg_type: SegmentType, r
 			if rng.randf() < rules.get("ore_chance", 0.4):
 				return TileType.ORE
 			return TileType.FLOOR
+		
+		SegmentType.EMPTY:
+			return TileType.FLOOR
 	
 	return TileType.WALL
 
@@ -511,6 +517,7 @@ func _load_template_samples() -> Dictionary:
 		SegmentType.BIG_CHAMBER: "res://rooms/templates/big_chamber.tscn",
 		SegmentType.CORRUPTED: "res://rooms/templates/corrupted.tscn",
 		SegmentType.ORE: "res://rooms/templates/ore_vein.tscn",
+		SegmentType.EMPTY: "res://rooms/templates/empty.tscn",
 		# Additional templates for variety
 		"treasure_vault": "res://rooms/templates/treasure_vault.tscn",
 		"boss_arena": "res://rooms/templates/boss_arena.tscn",

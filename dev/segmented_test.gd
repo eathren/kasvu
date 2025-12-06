@@ -117,7 +117,8 @@ func _print_segment_stats(segments: Array) -> void:
 		SegmentedMineGenerator.SegmentType.TEMPLE: "TEMPLE",
 		SegmentedMineGenerator.SegmentType.BIG_CHAMBER: "BIG_CHAMBER",
 		SegmentedMineGenerator.SegmentType.CORRUPTED: "CORRUPTED",
-		SegmentedMineGenerator.SegmentType.ORE: "ORE"
+		SegmentedMineGenerator.SegmentType.ORE: "ORE",
+		SegmentedMineGenerator.SegmentType.EMPTY: "EMPTY"
 	}
 	
 	for row in segments:
