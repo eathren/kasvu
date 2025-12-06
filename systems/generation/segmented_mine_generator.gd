@@ -65,7 +65,7 @@ func generate(world_seed: int) -> Dictionary:
 
 ## Step 1: Create macro layout of segment types
 func _create_macro_layout() -> void:
-	# Initialize grid
+	# Initialize grid to SOLID
 	segments = []
 	for y in range(SEG_H):
 		var row = []
@@ -73,102 +73,16 @@ func _create_macro_layout() -> void:
 			row.append(SegmentType.SOLID)
 		segments.append(row)
 	
-	# Center column index
-	var center_x = SEG_W / 2
+	# Random walk for main shaft
+	_generate_main_shaft()
 	
-	# Fill center column with varied segment types (trawler will burrow through)
-	segments[0][center_x] = SegmentType.ROOM  # Spawn area
-	segments[1][center_x] = SegmentType.ROOM
+	# Spawn side branches from shaft segments
+	_generate_side_branches()
 	
-	for y in range(2, SEG_H):
-		var roll = rng.randf()
-		if roll < 0.3:
-			segments[y][center_x] = SegmentType.SHAFT
-		elif roll < 0.45:
-			segments[y][center_x] = SegmentType.ROOM
-		elif roll < 0.6:
-			segments[y][center_x] = SegmentType.BIG_CHAMBER
-		elif roll < 0.7:
-			segments[y][center_x] = SegmentType.TEMPLE
-		elif roll < 0.8:
-			segments[y][center_x] = SegmentType.ORE
-		elif roll < 0.9:
-			segments[y][center_x] = SegmentType.CORRUPTED
-		else:
-			segments[y][center_x] = SegmentType.SIDE_TUNNEL
-	
-	# Create side branches every 2-4 segments (more frequent)
-	var y = 3
-	while y < SEG_H:
-		var branch_length = rng.randi_range(2, 5)  # Longer branches
-		var go_left = rng.randf() < 0.5
-		
-		# Branch direction
-		var dx = -1 if go_left else 1
-		var branch_x = center_x + dx
-		
-		# Create tunnel segments
-		for i in range(branch_length):
-			if branch_x < 0 or branch_x >= SEG_W:
-				break
-			
-			segments[y][branch_x] = SegmentType.SIDE_TUNNEL
-			
-			# Add more variety near tunnels (higher chance)
-			if rng.randf() < 0.6 and branch_x + dx >= 0 and branch_x + dx < SEG_W:
-				var roll = rng.randf()
-				if roll < 0.35:
-					segments[y][branch_x + dx] = SegmentType.ORE
-				elif roll < 0.65:
-					segments[y][branch_x + dx] = SegmentType.CORRUPTED
-				else:
-					segments[y][branch_x + dx] = SegmentType.ROOM
-			
-			branch_x += dx
-		
-		# End with a chamber (more variety)
-		if branch_x >= 0 and branch_x < SEG_W:
-			var chamber_type = rng.randf()
-			if chamber_type < 0.2:
-				segments[y][branch_x] = SegmentType.TEMPLE
-			elif chamber_type < 0.5:
-				segments[y][branch_x] = SegmentType.BIG_CHAMBER
-			elif chamber_type < 0.7:
-				segments[y][branch_x] = SegmentType.ROOM
-			elif chamber_type < 0.85:
-				segments[y][branch_x] = SegmentType.ORE
-			else:
-				segments[y][branch_x] = SegmentType.CORRUPTED
-		
-		# Next branch (more frequent)
-		y += rng.randi_range(2, 4)
-	
-	# Add scattered special zones in solid areas
-	for attempt in range(20):
-		var zone_x = rng.randi_range(0, SEG_W - 1)
-		var zone_y = rng.randi_range(4, SEG_H - 1)
-		
-		# Only place in solid areas
-		if segments[zone_y][zone_x] == SegmentType.SOLID:
-			var zone_type = rng.randf()
-			if zone_type < 0.3:
-				# Small ore pocket (1-2 segments)
-				segments[zone_y][zone_x] = SegmentType.ORE
-				if zone_x + 1 < SEG_W and segments[zone_y][zone_x + 1] == SegmentType.SOLID and rng.randf() < 0.5:
-					segments[zone_y][zone_x + 1] = SegmentType.ORE
-			elif zone_type < 0.5:
-				# Hidden temple
-				segments[zone_y][zone_x] = SegmentType.TEMPLE
-			elif zone_type < 0.7:
-				# Corrupted zone (2x2)
-				segments[zone_y][zone_x] = SegmentType.CORRUPTED
-				if zone_x + 1 < SEG_W and segments[zone_y][zone_x + 1] == SegmentType.SOLID:
-					segments[zone_y][zone_x + 1] = SegmentType.CORRUPTED
-				if zone_y + 1 < SEG_H and segments[zone_y + 1][zone_x] == SegmentType.SOLID:
-					segments[zone_y + 1][zone_x] = SegmentType.CORRUPTED
-			else:
-				# Big chamber
-				segments[zone_y][zone_x] = SegmentType.BIG_CHAMBER
+	# Overlay blobby zones on remaining SOLID areas
+	_scatter_blobby_zones(SegmentType.ORE, 4, 12)
+	_scatter_blobby_zones(SegmentType.CORRUPTED, 3, 10)
+	_scatter_blobby_zones(SegmentType.TEMPLE, 2, 6)
 	
 	# Log segment counts
 	var counts = {}
@@ -178,6 +92,123 @@ func _create_macro_layout() -> void:
 			counts[type] = counts.get(type, 0) + 1
 	
 	print("[SegGen] Segment layout: ", counts)
+
+func _generate_main_shaft() -> void:
+	"""Random walk shaft that wiggles left/right as it descends"""
+	var x := SEG_W / 2
+	var y := 0
+	
+	# Top 2 as spawn / lobby
+	segments[y][x] = SegmentType.ROOM
+	if y + 1 < SEG_H:
+		segments[y + 1][x] = SegmentType.ROOM
+		y += 2
+	
+	while y < SEG_H:
+		segments[y][x] = SegmentType.SHAFT
+		
+		# Occasionally widen into ROOM or BIG_CHAMBER
+		var roll := rng.randf()
+		if roll < 0.15:
+			segments[y][x] = SegmentType.ROOM
+		elif roll < 0.25:
+			segments[y][x] = SegmentType.BIG_CHAMBER
+		
+		# Small horizontal wiggle
+		if rng.randf() < 0.35:
+			var dx := -1 if rng.randf() < 0.5 else 1
+			var nx = clamp(x + dx, 1, SEG_W - 2)
+			if segments[y][nx] == SegmentType.SOLID:
+				x = nx
+				segments[y][x] = SegmentType.SHAFT
+		
+		y += 1
+
+func _generate_side_branches() -> void:
+	"""Spawn branching tunnels from random shaft segments"""
+	for y in range(3, SEG_H):
+		# Only branch from shaft/room segments occasionally
+		var center_x := SEG_W / 2
+		for x in range(SEG_W):
+			var seg_type = segments[y][x]
+			if seg_type in [SegmentType.SHAFT, SegmentType.ROOM, SegmentType.BIG_CHAMBER]:
+				if rng.randf() < 0.15:  # 15% chance per eligible segment
+					_spawn_side_branch(Vector2i(x, y))
+
+func _spawn_side_branch(start_seg: Vector2i) -> void:
+	"""Random walk a side tunnel from start_seg"""
+	var steps := rng.randi_range(3, 7)
+	var pos := start_seg
+	var dir := Vector2i(-1, 0) if rng.randf() < 0.5 else Vector2i(1, 0)
+	
+	for i in range(steps):
+		var next := pos + dir
+		if next.x < 0 or next.x >= SEG_W:
+			break
+		if next.y < 0 or next.y >= SEG_H:
+			break
+		
+		if segments[next.y][next.x] == SegmentType.SOLID:
+			segments[next.y][next.x] = SegmentType.SIDE_TUNNEL
+		pos = next
+		
+		# Small vertical variation so tunnels sag or rise
+		if rng.randf() < 0.3:
+			var vy := -1 if rng.randf() < 0.5 else 1
+			var ny = clamp(pos.y + vy, 1, SEG_H - 2)
+			if segments[ny][pos.x] == SegmentType.SOLID:
+				pos.y = ny
+				segments[pos.y][pos.x] = SegmentType.SIDE_TUNNEL
+	
+	# End room
+	var end_type_roll := rng.randf()
+	if end_type_roll < 0.2:
+		segments[pos.y][pos.x] = SegmentType.TEMPLE
+	elif end_type_roll < 0.5:
+		segments[pos.y][pos.x] = SegmentType.BIG_CHAMBER
+	else:
+		segments[pos.y][pos.x] = SegmentType.ROOM
+
+func _scatter_blobby_zones(kind: SegmentType, attempts: int, max_radius: int) -> void:
+	"""Grow blobby zones from seeds instead of placing single segments"""
+	for i in range(attempts):
+		var sx := rng.randi_range(0, SEG_W - 1)
+		var sy := rng.randi_range(3, SEG_H - 1)
+		if segments[sy][sx] != SegmentType.SOLID:
+			continue
+		
+		var frontier: Array = [Vector2i(sx, sy)]
+		var visited: Dictionary = {}
+		var steps := 0
+		
+		while not frontier.is_empty() and steps < max_radius:
+			steps += 1
+			var current: Vector2i = frontier.pop_back()
+			if visited.has(current):
+				continue
+			visited[current] = true
+			
+			if segments[current.y][current.x] == SegmentType.SOLID:
+				segments[current.y][current.x] = kind
+			
+			# Chance to keep growing from this cell
+			if rng.randf() > 0.65:
+				continue
+			
+			var neighbors := [
+				current + Vector2i(1, 0),
+				current + Vector2i(-1, 0),
+				current + Vector2i(0, 1),
+				current + Vector2i(0, -1),
+			]
+			for n in neighbors:
+				if n.x < 0 or n.x >= SEG_W:
+					continue
+				if n.y < 0 or n.y >= SEG_H:
+					continue
+				if segments[n.y][n.x] != SegmentType.SOLID:
+					continue
+				frontier.append(n)
 
 ## Step 2: Build connectivity graph between segments
 func _build_segment_graph() -> void:
@@ -214,7 +245,7 @@ func _build_segment_graph() -> void:
 	
 	print("[SegGen] Graph built with %d nodes" % segment_graph.size())
 
-## Step 3: Reserve door positions at segment boundaries
+## Step 3: Reserve door positions at segment boundaries (initial geometric placement)
 func _reserve_doors() -> void:
 	reserved_doors.clear()
 	
@@ -226,13 +257,13 @@ func _reserve_doors() -> void:
 			if neighbor_pos < seg_pos:
 				continue
 			
-			# Find border and place door
+			# Place temporary geometric doors (will be refined after WFC)
 			_place_door_between(seg_pos, neighbor_pos)
 	
-	print("[SegGen] Reserved %d door positions" % reserved_doors.size())
+	print("[SegGen] Reserved %d initial door positions" % reserved_doors.size())
 
 func _place_door_between(seg_a: Vector2i, seg_b: Vector2i) -> void:
-	"""Place door(s) at the border between two segments"""
+	"""Place door(s) at the border between two segments (geometric fallback)"""
 	var origin_a = seg_a * SEGMENT_SIZE
 	var origin_b = seg_b * SEGMENT_SIZE
 	
@@ -258,6 +289,61 @@ func _place_door_between(seg_a: Vector2i, seg_b: Vector2i) -> void:
 		for dy in range(-door_width / 2, door_width / 2 + 1):
 			var door_pos = Vector2i(border_x, y_center + dy)
 			reserved_doors[door_pos] = true
+
+## Step 3b: Rebuild doors based on actual floor layout
+func _rebuild_doors_from_layout() -> void:
+	"""Replace geometric doors with ones that align with actual floor positions"""
+	reserved_doors.clear()
+	
+	for seg_a in segment_graph.keys():
+		for seg_b in segment_graph[seg_a]:
+			if seg_b < seg_a:
+				continue
+			
+			var shared := _floor_pairs_on_border(seg_a, seg_b)
+			if shared.is_empty():
+				continue
+			
+			# Pick a few positions from the shared floor border
+			var count = min(3, shared.size())
+			for i in range(count):
+				var idx := rng.randi_range(0, shared.size() - 1)
+				var pos = shared[idx]
+				shared.remove_at(idx)
+				reserved_doors[pos] = true
+	
+	print("[SegGen] Rebuilt %d doors from floor layout" % reserved_doors.size())
+
+func _floor_pairs_on_border(seg_a: Vector2i, seg_b: Vector2i) -> Array:
+	"""Find positions on the border where both sides have floor"""
+	var origin_a := seg_a * SEGMENT_SIZE
+	var origin_b := seg_b * SEGMENT_SIZE
+	var result: Array = []
+	
+	if seg_a.x == seg_b.x:
+		# Vertical neighbors
+		var x0 := origin_a.x
+		var y_border = max(origin_a.y, origin_b.y)
+		for dx in range(SEGMENT_SIZE):
+			var pos0 := Vector2i(x0 + dx, y_border - 1)
+			var pos1 := Vector2i(x0 + dx, y_border)
+			if _is_floor(pos0) and _is_floor(pos1):
+				result.append(pos1)
+	else:
+		# Horizontal neighbors
+		var y0 := origin_a.y
+		var x_border = max(origin_a.x, origin_b.x)
+		for dy in range(SEGMENT_SIZE):
+			var pos0 := Vector2i(x_border - 1, y0 + dy)
+			var pos1 := Vector2i(x_border, y0 + dy)
+			if _is_floor(pos0) and _is_floor(pos1):
+				result.append(pos1)
+	
+	return result
+
+func _is_floor(pos: Vector2i) -> bool:
+	"""Check if a world position is floor"""
+	return layout_map.get(pos, TileType.WALL) == TileType.FLOOR
 
 ## Step 4: Fill all segments with appropriate patterns
 func _fill_all_segments() -> void:
